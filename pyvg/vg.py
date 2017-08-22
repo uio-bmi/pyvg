@@ -457,43 +457,6 @@ class Graph(object):
         return offsetbasedgraph.Translation(trans_dict, trans_dict_reverse, offset_based_graph)
 
 
-def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False):
-
-    if not offset_based_graph:
-        print("Creating offsetbasedgraph")
-        offset_based_graph = vg_graph.get_offset_based_graph()
-
-    f = open(vg_mapping_file_name)
-    jsons = (json.loads(line) for line in f.readlines())
-    alignments =  []
-    i = 0
-    for json_dict in jsons:
-        if "path" not in json_dict:  # Did not align
-            #print("Alignment missing path")
-            continue
-
-        if i % 100 == 0:
-            print("Alignment %d" % i)
-        i += 1
-
-        #alignments.append(Alignment.from_json(json_dict))
-        alignment = Alignment.from_json(json_dict)
-        path = alignment.path
-        paths = vg_graph.filter([path])
-        if len(paths) > 0:
-            obg_interval = path.to_obg(offset_based_graph)
-            yield obg_interval
-
-    #paths = [alignment.path for alignment in alignments]
-    #print("Filtering paths")
-    #paths = vg_graph.filter(paths)   # Keep only the ones in graph
-    #print("Translating")
-    #obg_alignments = [path.to_obg(offset_based_graph) for path in paths]
-
-    #return obg_alignments
-
-
-
 if __name__ == "__main__":
 
     f = open("./dm_test_data/mapped_reads_sample.json")
