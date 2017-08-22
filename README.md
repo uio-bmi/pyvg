@@ -2,4 +2,4 @@
 Handling vg-graphs in python.
 
 >> import pyvg as vg
->> vg.Path()
+>> vg.Graph.create_from_file("vg.json")
