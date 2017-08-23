@@ -1,4 +1,6 @@
+from .vg import Graph
 import json
+
 
 def get_chromosomes_from_vg_graph(vg_json_file_name):
     # TODO
@@ -14,9 +16,10 @@ def vg_to_offsetbasedgraphs_per_chromosome(vg_json_file_name, to_file_base_name 
     """
     for chromosome in get_chromosomes_from_vg_graph(vg_json_file_name):
         print("Creating graph for chromosome %s" % chromosome)
-        vg_graph = vg.Graph.create_from_file(vg_json_file_name, False, chromosome)
+        vg_graph = Graph.create_from_file(vg_json_file_name, False, chromosome)
         offset_based_graph = vg_graph.get_offset_based_graph()
         offset_based_graph.to_file(to_file_base_name + chromosome + ".tmp")
+
 
 def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False):
     from pyvg import Alignment
