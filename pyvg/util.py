@@ -1,4 +1,4 @@
-from .vg import Graph
+from .vg import Graph, Alignment
 import json
 from offsetbasedgraph import IntervalCollection
 
@@ -23,7 +23,6 @@ def vg_to_offsetbasedgraphs_per_chromosome(vg_json_file_name, to_file_base_name 
 
 
 def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False):
-    from pyvg import Alignment
     if not offset_based_graph:
         print("Creating offsetbasedgraph")
         offset_based_graph = vg_graph.get_offset_based_graph()
