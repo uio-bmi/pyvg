@@ -128,5 +128,12 @@ def vg_mapping_file_to_interval_file(out_file_name, vg_graph, vg_mapping_file_na
     interval_collection.to_file(out_file_name)
     return out_file_name
 
+
+def vg_gam_file_to_gzip_interval_file(out_file_name, vg_graph, vg_mapping_file_name, offset_based_graph=False):
+    interval_collection = IntervalCollection(
+                vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph))
+    interval_collection.to_gzip(out_file_name)
+    return out_file_name
+
 if __name__ == "__main__":
     vg_to_offsetbasedgraphs_per_chromosome("../tests/x.json", "test_ofbg_")
