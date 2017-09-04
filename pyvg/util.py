@@ -1,7 +1,9 @@
-from .vg import Graph, Alignment
+from .vg import Graph, Alignment, Path
 import json
+import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
-from .vg import Graph
+import stream
+import vg_pb2
 
 
 def get_chromosomes_from_vg_graph(vg_json_file_name):
@@ -44,7 +46,11 @@ def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_base
         #alignments.append(Alignment.from_json(json_dict))
         alignment = Alignment.from_json(json_dict)
         path = alignment.path
-        paths = vg_graph.filter([path])
+        if vg_graph:
+            paths = vg_graph.filter([path])
+        else:
+            paths = [path]
+
         if len(paths) > 0:
             obg_interval = path.to_obg(offset_based_graph)
             obg_interval.graph = offset_based_graph
@@ -57,6 +63,64 @@ def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_base
     #obg_alignments = [path.to_obg(offset_based_graph) for path in paths]
 
     #return obg_alignments
+
+def mapping_end_offset(mapping):
+    start_offset = mapping.position.offset
+    length = sum(edit.from_length for edit in mapping.edit)
+    return start_offset + length
+
+def path_is_reverse(path):
+    if hasattr(path.mapping[0], "is_reverse"):
+        if path.mapping[0].is_reverse:
+            return True
+
+    return False
+
+def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=False):
+    import stream
+    import vg_pb2
+
+    for a in stream.parse(vg_mapping_file_name, vg_pb2.Alignment):
+        #print(a.path)
+        #print(a.identity)
+        #print(a.path.mapping)
+        path = a.path
+        obg_interval = vg_path_to_obg_interval(path, offset_based_graph)
+        print(obg_interval)
+
+        if(all([mapping.position.node_id in offset_based_graph.blocks for mapping in path.mapping])):
+            yield obg_interval
+
+
+def vg_path_to_obg_interval(path, ob_graph = False):
+    if len(path.mapping) == 0:
+        return offsetbasedgraph.Interval(0, 0, [])
+
+    nodes = [mapping.position.node_id for mapping in path.mapping]
+
+    if path_is_reverse(path):
+        if not ob_graph:
+            raise Exception("Path is reverse and offset based graph is not sent")
+
+        nodes = nodes[::-1]
+        start_block_length = ob_graph.blocks[nodes[0]].length()
+        start_offset = start_block_length - mapping_end_offset(path.mapping[-1])
+        end_block_length = ob_graph.blocks[nodes[-1]].length()
+        end_offset = end_block_length - mapping_end_offset(path.mapping[0])
+        direction = -1
+    else:
+        start_offset = path.mapping[0].position.offset
+        end_offset = mapping_end_offset(path.mapping[-1])
+        direction = 1
+
+    interval_graph = None
+    if ob_graph:
+        interval_graph = ob_graph
+
+    return offsetbasedgraph.Interval(
+        start_offset, end_offset,
+        nodes, interval_graph, direction=direction)
+
 
 def vg_mapping_file_to_interval_file(out_file_name, vg_graph, vg_mapping_file_name, offset_based_graph=False):
     interval_collection = IntervalCollection(

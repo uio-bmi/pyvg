@@ -288,6 +288,25 @@ class Graph(object):
 
         return obj
 
+    @classmethod
+    def create_from_proto_file(cls, proto_file_name, max_lines_to_read=False, limit_to_chromosome=False, do_read_paths=True):
+        # todo
+        paths = []
+        edges = []
+        nodes = []
+        import stream
+        import vg_pb2
+        i = 0
+        for line in stream.parse(proto_file_name, vg_pb2.Graph):
+
+            print(line)
+            if i % 100 == 0:
+                print("Line: %d" % (i))
+
+
+            i += 1
+
+
     def _create_edge_dicts(self):
         self.edge_dict = defaultdict(list)
         self.reverse_edge_dict = defaultdict(list)
