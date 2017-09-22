@@ -211,8 +211,6 @@ class Edge(object):
             return -1 * self.to_node
         return self.to_node
 
-    
-
 
 class Alignment(object):
     def __init__(self, path, identity):
@@ -323,7 +321,7 @@ class Graph(object):
 
         for edge in self.edges:
             self.edge_dict[edge.get_from_node()].append(edge.get_to_node())
-            self.reverse_edge_dict[edge.get_to_node()].append(edge.get_from_node())
+            self.reverse_edge_dict[-edge.get_to_node()].append(-edge.get_from_node())
 
     def _interval_has_no_edges_in(self, interval):
 
