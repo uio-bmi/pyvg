@@ -76,25 +76,46 @@ def path_is_reverse(path):
 
     return False
 
-def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=False):
+def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
     import stream
     import vg_pb2
 
+    i = 0
     for a in stream.parse(vg_mapping_file_name, vg_pb2.Alignment):
-        #print(a.path)
-        #print(a.identity)
-        #print(a.path.mapping)
         path = a.path
-        obg_interval = vg_path_to_obg_interval(path, offset_based_graph)
-        print(obg_interval)
+        if i > 100000:
+            print(path)
+
+        try:
+            obg_interval = vg_path_to_obg_interval(path, offset_based_graph)
+        except Exception:
+            print("Error with path")
+            print(path)
+            raise
+
+        #print(obg_interval)
+        if not obg_interval:
+            continue
+
+        if i % 1000 == 0:
+            print("Interval # %d" % i)
 
         if(all([mapping.position.node_id in offset_based_graph.blocks for mapping in path.mapping])):
+            if max_intervals:
+                if i >= max_intervals:
+                    return
             yield obg_interval
+            i += 1
 
+
+def vg_gam_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
+    return offsetbasedgraph.IntervalCollection(
+                vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=offset_based_graph, max_intervals=max_intervals)
+            )
 
 def vg_path_to_obg_interval(path, ob_graph = False):
     if len(path.mapping) == 0:
-        return offsetbasedgraph.Interval(0, 0, [])
+        return False  # offsetbasedgraph.Interval(0, 0, [])
 
     nodes = [mapping.position.node_id for mapping in path.mapping]
 

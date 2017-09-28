@@ -83,7 +83,15 @@ class Mapping(object):
     @classmethod
     def from_json(cls, mapping_dict):
         start_position = Position.from_json(mapping_dict["position"])
-        edits = [Edit.from_json(edit) for edit in mapping_dict["edit"]]
+
+        edits = []
+        if "edit" in mapping_dict:
+            try:
+                edits = [Edit.from_json(edit) for edit in mapping_dict["edit"]]
+            except KeyError:
+                print(mapping_dict)
+                raise
+
         return cls(start_position, edits)
 
 
@@ -243,7 +251,7 @@ class Graph(object):
         self._create_edge_dicts()
 
     @classmethod
-    def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosome=False, do_read_paths=True):
+    def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
         paths = []
         edges = []
         nodes = []
@@ -259,10 +267,10 @@ class Graph(object):
             if i % 100 == 0:
                 print("Line: %d/%d" % (i, n_lines))
             i += 1
-            if limit_to_chromosome:
+            if limit_to_chromosomes:
                 if "path" not in line:
                     continue
-                if line["path"][0]["name"] != limit_to_chromosome:
+                if line["path"][0]["name"] not in limit_to_chromosomes:
                     if len(nodes) > 0:
                         # Assuminng there are nothing more on this chromosome now
                         break
@@ -289,6 +297,7 @@ class Graph(object):
         return obj
 
     @classmethod
+    # TODO Not finished
     def create_from_proto_file(cls, proto_file_name, max_lines_to_read=False, limit_to_chromosome=False, do_read_paths=True):
         # todo
         paths = []
