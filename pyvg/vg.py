@@ -125,7 +125,37 @@ class Path(object):
 
         return cls(name, mappings)
 
-    def to_obg(self, ob_graph = False):
+    def to_obg_with_reversals(self, ob_graph=False):
+        if len(self.mappings) == 0:
+            return offsetbasedgraph.Interval(0, 0, [])
+
+        obg_blocks = []
+        start_offset = self.mappings[0].start_position.offset
+        end_offset = self.mappings[-1].start_position.offset
+
+        for mapping in self.mappings:
+            position = mapping.start_position
+            if mapping.is_reverse():
+                node_id = -position.node_id
+            else:
+                node_id = position.node_id
+
+            obg_blocks.append(node_id)
+
+        interval_graph = None
+        if ob_graph:
+            interval_graph = ob_graph
+
+        interval = offsetbasedgraph.Interval(
+            start_offset, end_offset,
+            obg_blocks, interval_graph)
+        #print(interval)
+        return interval
+
+
+    def to_obg(self, ob_graph=False):
+        return self.to_obg_with_reversals(ob_graph=ob_graph)
+
         if len(self.mappings) == 0:
             return offsetbasedgraph.Interval(0, 0, [])
 
@@ -292,7 +322,7 @@ class Graph(object):
         obj = cls(nodes, edges, paths)
         if do_read_paths:
             obj.paths_as_intervals_by_chr = {}
-            obj._merge_paths_by_name()
+            #obj._merge_paths_by_name()
 
         return obj
 
@@ -327,7 +357,7 @@ class Graph(object):
     def _interval_has_no_edges_in(self, interval):
 
         start_node = interval.region_paths[0]
-        if start_node not in self.reverse_edge_dict:
+        if abs(start_node) not in self.reverse_edge_dict:
             return True
 
         return False
@@ -386,7 +416,7 @@ class Graph(object):
             for interval in intervals:
                 if self._interval_has_no_edges_in(interval):
                     start_intervals.append(interval)
-            assert len(start_intervals) == 1
+            assert len(start_intervals) == 1, print("\n\n".join([str(i.region_paths[0]) for i in intervals]))
 
             # Traverse to connect all intervals
             current_interval = start_intervals[0]
