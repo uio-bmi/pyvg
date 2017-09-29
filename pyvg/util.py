@@ -1,4 +1,4 @@
-from .vg import Graph, Alignment, Path
+from .vg import Graph, Alignment, Path, Mapping
 import json
 import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
@@ -114,8 +114,19 @@ def vg_gam_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_ba
             )
 
 def vg_path_to_obg_interval(path, ob_graph = False):
-    mappings = [Mapping()]
-    path = Path(path.name, path.mappings)
+    mappings = []
+    for mapping in path.mapping:
+        #edits = []
+        #for edit in path.mapping.edits:
+        #    edits.append(edit.to_length, edit.from_length, edit.sequence)
+
+        obg_mapping = Mapping(mapping.position, mapping.edit)
+        mappings.append(obg_mapping)
+
+    path = Path(path.name, mappings)
+    interval = path.to_obg_with_reversals(ob_graph)
+
+    return interval
 
     if len(path.mapping) == 0:
         return False  # offsetbasedgraph.Interval(0, 0, [])
