@@ -239,6 +239,16 @@ class Edge(object):
                    overlap,
                    )
 
+    def get_from_node(self):
+        if self.from_start:
+            return -1*self.from_node
+        return self.from_node
+
+    def get_to_node(self):
+        if self.to_end:
+            return -1 * self.to_node
+        return self.to_node
+
 
 class Alignment(object):
     def __init__(self, path, identity):
@@ -342,17 +352,15 @@ class Graph(object):
             if i % 100 == 0:
                 print("Line: %d" % (i))
 
-
             i += 1
-
 
     def _create_edge_dicts(self):
         self.edge_dict = defaultdict(list)
         self.reverse_edge_dict = defaultdict(list)
 
         for edge in self.edges:
-            self.edge_dict[edge.from_node].append(edge.to_node)
-            self.reverse_edge_dict[edge.to_node].append(edge.from_node)
+            self.edge_dict[edge.get_from_node()].append(edge.get_to_node())
+            self.reverse_edge_dict[-edge.get_to_node()].append(-edge.get_from_node())
 
     def _interval_has_no_edges_in(self, interval):
 
