@@ -114,6 +114,9 @@ def vg_gam_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_ba
             )
 
 def vg_path_to_obg_interval(path, ob_graph = False):
+    mappings = [Mapping()]
+    path = Path(path.name, path.mappings)
+
     if len(path.mapping) == 0:
         return False  # offsetbasedgraph.Interval(0, 0, [])
 
