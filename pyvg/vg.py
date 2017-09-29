@@ -127,7 +127,7 @@ class Path(object):
 
     def to_obg_with_reversals(self, ob_graph=False):
         if len(self.mappings) == 0:
-            return offsetbasedgraph.Interval(0, 0, [])
+            return offsetbasedgraph.DirectedInterval(0, 0, [])
 
         obg_blocks = []
         start_offset = self.mappings[0].start_position.offset
@@ -146,7 +146,7 @@ class Path(object):
         if ob_graph:
             interval_graph = ob_graph
 
-        interval = offsetbasedgraph.Interval(
+        interval = offsetbasedgraph.DirectedInterval(
             start_offset, end_offset,
             obg_blocks, interval_graph)
         #print(interval)
