@@ -489,8 +489,9 @@ class Graph(object):
         for block in self.nodes:
             offset_based_blocks[block.id] = block.to_obg()
         #print(offset_based_blocks)
-        return offsetbasedgraph.Graph(offset_based_blocks,
-                                      offset_based_edges)
+        return offsetbasedgraph.GraphWithReversals(
+            offset_based_blocks,
+            offset_based_edges)
 
     def get_translation(self, limit_to_chromosome=False):
         offset_based_graph = self.get_offset_based_graph()
