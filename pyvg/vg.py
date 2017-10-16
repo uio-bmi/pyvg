@@ -279,6 +279,65 @@ class AlignmentCollection(object):
         return self.alignments.__iter__()
 
 
+import stream
+import vg_pb2
+
+
+class ProtoGraph(object):
+    """
+    Holding a vg proto graph (restructured into list of nodes, edges and paths
+    """
+
+    def __init__(self, nodes, edges, paths):
+        self.nodes = nodes
+        self.edges = edges
+        self.paths = paths
+
+    @classmethod
+    def from_vg_graph_file(cls, vg_graph_file_name, only_read_nodes=False, use_cache_if_available=False):
+        nodes = {}
+        paths = []
+        edges = []
+
+        if use_cache_if_available:
+            if os.path.isfile("%s" %  "vg_sequence_index.cached"):
+                with open("%s" % "vg_sequence_index.cached", "rb") as f:
+                    nodes = pickle.loads(f.read())
+                    return
+        i = 0
+        for line in stream.parse(vg_graph_file_name, vg_pb2.Graph):
+            print("Line %d" % i)
+            if hasattr(line, "node"):
+                for node in line.node:
+                    nodes[node.id] = node
+
+            if only_read_nodes:
+                continue
+
+            if hasattr(line, "path"):
+                for path in line.path:
+                    paths.append(path)
+
+            if hasattr(line, "edge"):
+                for edge in line.edge:
+                    edges.append(edge)
+
+            i += 1
+        graph = cls(nodes, edges, paths)
+        graph._cache_nodes()
+        return graph
+
+    @classmethod
+    def from_node_dict(cls, node_dict):
+        # Create a dummy object from a node dict (node id => sequence)
+        return cls(node_dict, [], [])
+
+    def _cache_nodes(self):
+        with open("%s" % "vg_sequence_index.cached", "wb") as f:
+            pickle.dump(self.nodes, f)
+
+
+
 class Graph(object):
 
     def __init__(self, nodes, edges, paths):
