@@ -303,13 +303,16 @@ class ProtoGraph(object):
             if os.path.isfile("%s" %  "vg_sequence_index.cached"):
                 with open("%s" % "vg_sequence_index.cached", "rb") as f:
                     nodes = pickle.loads(f.read())
-                    return
+                    return cls(nodes, [], [])
         i = 0
         for line in stream.parse(vg_graph_file_name, vg_pb2.Graph):
             print("Line %d" % i)
+            i += 1
             if hasattr(line, "node"):
                 for node in line.node:
-                    nodes[node.id] = node
+                    nodes[node.id] = node.sequence
+                    #if "Chr" in node.name and True:
+                    #    print("Node id: %d, name: %s, %s" % (node.id, node.name, node.sequence[0:10]))
 
             if only_read_nodes:
                 continue
@@ -317,12 +320,13 @@ class ProtoGraph(object):
             if hasattr(line, "path"):
                 for path in line.path:
                     paths.append(path)
+                    #if not "G" in path.name:
+                    #    print(path.name)
 
             if hasattr(line, "edge"):
                 for edge in line.edge:
                     edges.append(edge)
 
-            i += 1
         graph = cls(nodes, edges, paths)
         graph._cache_nodes()
         return graph

@@ -4,7 +4,54 @@ import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
 import stream
 import vg_pb2
+from .sequences import SequenceRetriever
 
+
+def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob_graph, vg_graph_file_name):
+
+    offset = 0
+    print("Reading sequences")
+    reference_sequence = open(reference_file_name).read()
+    current_node = start_node_id
+
+    print("Getting sequence retriever")
+    get_seq = SequenceRetriever.from_vg_graph(vg_graph_file_name).get_sequence_on_directed_node
+
+    while current_node is not None:
+        print("Current node: %d" % current_node)
+        node_sequence = get_seq(current_node)
+        current_ref_seq = reference_sequence[offset:offset + len(node_sequence)]
+        print("Node sequence: %s" % node_sequence[0:10])
+        print("Ref sequence: %s" % current_ref_seq[0:10])
+        assert current_ref_seq == node_sequence
+
+        offset += len(node_sequence)
+
+        print("Adjencies")
+        print(ob_graph.adj_list[current_node])
+        candidates = {}
+        max_length = 0
+        next_node = None
+        for next in ob_graph.adj_list[current_node]:
+            next_sequence = get_seq(next)
+
+            if next_sequence == reference_sequence[offset:offset+len(next_sequence)]:
+                candidates[next] = next_sequence
+                print(next_sequence)
+
+        assert len(candidates) <= 2
+        print(candidates)
+        if len(candidates) > 0:
+            next_node = list(candidates.keys())[0]
+
+        max_length = 0
+        for node, seq in candidates.items():
+            if len(seq) > max_length:
+                current_node = node
+
+        current_node = next_node
+
+    print(offset)
 
 def get_chromosomes_from_vg_graph(vg_json_file_name):
     # TODO
