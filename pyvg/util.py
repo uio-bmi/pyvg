@@ -21,14 +21,14 @@ def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob
         print("Current node: %d" % current_node)
         node_sequence = get_seq(current_node)
         current_ref_seq = reference_sequence[offset:offset + len(node_sequence)]
-        print("Node sequence: %s" % node_sequence[0:10])
-        print("Ref sequence: %s" % current_ref_seq[0:10])
+        #print("Node sequence: %s" % node_sequence[0:10])
+        #print("Ref sequence: %s" % current_ref_seq[0:10])
         assert current_ref_seq == node_sequence
 
         offset += len(node_sequence)
 
-        print("Adjencies")
-        print(ob_graph.adj_list[current_node])
+        #print("Adjencies")
+        #print(ob_graph.adj_list[current_node])
         candidates = {}
         max_length = 0
         next_node = None
@@ -40,15 +40,17 @@ def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob
                 print(next_sequence)
 
         assert len(candidates) <= 2
-        print(candidates)
-        if len(candidates) > 0:
-            next_node = list(candidates.keys())[0]
+        if len(candidates) > 1:
+            print(candidates)
+        #if len(candidates) > 0:
+        #    next_node = list(candidates.keys())[0]
 
         max_length = 0
         for node, seq in candidates.items():
             if len(seq) > max_length:
-                current_node = node
-
+                next_node = node
+                max_length = len(seq)
+                #print("Chose max as %d" % node)
         current_node = next_node
 
     print(offset)

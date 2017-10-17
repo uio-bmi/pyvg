@@ -232,6 +232,10 @@ class Edge(object):
         if "overlap" in json_object:
             overlap = int(json_object["overlap"])
 
+        if json_object["from"] == 98389:
+            print("!!!!")
+            print(str(json_object))
+
         return cls(json_object["from"],
                    json_object["to"],
                    from_start,
@@ -326,6 +330,9 @@ class ProtoGraph(object):
             if hasattr(line, "edge"):
                 for edge in line.edge:
                     edges.append(edge)
+                    print("Edge overlap: %d" % edge.overlap)
+                    #assert not hasattr(edge, "overlap")
+                    assert edge.overlap == 0
 
         graph = cls(nodes, edges, paths)
         graph._cache_nodes()
@@ -546,7 +553,14 @@ class Graph(object):
     def get_offset_based_graph(self):
         offset_based_edges = defaultdict(list)
         for edge in self.edges:
-            offset_based_edges[edge.from_node].append(edge.to_node)
+            from_node = edge.from_node
+            to_node = edge.to_node
+            if edge.from_start:
+                from_node = -from_node
+            if edge.to_end:
+                to_node = -to_node
+
+            offset_based_edges[from_node].append(to_node)
 
         offset_based_blocks = {}
         for block in self.nodes:
