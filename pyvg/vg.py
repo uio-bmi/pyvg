@@ -358,6 +358,7 @@ class Graph(object):
         self._create_edge_dicts()
 
     @classmethod
+    @filecache(24*60*60)
     def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
         paths = []
         edges = []
