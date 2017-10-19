@@ -233,10 +233,6 @@ class Edge(object):
         if "overlap" in json_object:
             overlap = int(json_object["overlap"])
 
-        if json_object["from"] == 98389:
-            print("!!!!")
-            print(str(json_object))
-
         return cls(json_object["from"],
                    json_object["to"],
                    from_start,
