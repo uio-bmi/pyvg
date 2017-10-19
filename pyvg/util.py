@@ -1,34 +1,29 @@
+import logging
 from .vg import Graph, Alignment, Path, Mapping
 import json
 import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
-import stream
-import vg_pb2
 from .sequences import SequenceRetriever
+logger = logging.getLogger(__name__)
 
 
 def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob_graph, vg_graph_file_name):
 
     offset = 0
-    print("Reading sequences")
+    logger.info("Reading sequences")
     reference_sequence = open(reference_file_name).read()
     current_node = start_node_id
 
-    print("Getting sequence retriever")
+    logger.info("Getting sequence retriever")
     get_seq = SequenceRetriever.from_vg_graph(vg_graph_file_name).get_sequence_on_directed_node
 
     while current_node is not None:
-        print("Current node: %d" % current_node)
+        logger.info("Current node: %d" % current_node)
         node_sequence = get_seq(current_node)
         current_ref_seq = reference_sequence[offset:offset + len(node_sequence)]
-        #print("Node sequence: %s" % node_sequence[0:10])
-        #print("Ref sequence: %s" % current_ref_seq[0:10])
         assert current_ref_seq == node_sequence
 
         offset += len(node_sequence)
-
-        #print("Adjencies")
-        #print(ob_graph.adj_list[current_node])
         candidates = {}
         max_length = 0
         next_node = None
@@ -37,23 +32,20 @@ def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob
 
             if next_sequence == reference_sequence[offset:offset+len(next_sequence)]:
                 candidates[next] = next_sequence
-                print(next_sequence)
+                logger.info(next_sequence)
 
         assert len(candidates) <= 2
         if len(candidates) > 1:
-            print(candidates)
-        #if len(candidates) > 0:
-        #    next_node = list(candidates.keys())[0]
+            logger.info(candidates)
 
         max_length = 0
         for node, seq in candidates.items():
             if len(seq) > max_length:
                 next_node = node
                 max_length = len(seq)
-                #print("Chose max as %d" % node)
         current_node = next_node
 
-    print(offset)
+    logger.info(offset)
 
 def get_chromosomes_from_vg_graph(vg_json_file_name):
     # TODO
@@ -68,14 +60,14 @@ def vg_to_offsetbasedgraphs_per_chromosome(vg_json_file_name, to_file_base_name 
     :return:
     """
     for chromosome in get_chromosomes_from_vg_graph(vg_json_file_name):
-        print("Creating graph for chromosome %s" % chromosome)
+        logger.info("Creating graph for chromosome %s" % chromosome)
         vg_graph = Graph.create_from_file(vg_json_file_name, False, chromosome)
         offset_based_graph = vg_graph.get_offset_based_graph()
         offset_based_graph.to_file(to_file_base_name + chromosome + ".tmp")
 
 def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False):
     if not offset_based_graph:
-        print("Creating offsetbasedgraph")
+        logger.info("Creating offsetbasedgraph")
         offset_based_graph = vg_graph.get_offset_based_graph()
 
     f = open(vg_mapping_file_name)
@@ -84,11 +76,11 @@ def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_base
     i = 0
     for json_dict in jsons:
         if "path" not in json_dict:  # Did not align
-            #print("Alignment missing path")
+            #logger.info("Alignment missing path")
             continue
 
         if i % 10000 == 0:
-            print("Alignments processed: %d" % i)
+            logger.info("Alignments processed: %d" % i)
         i += 1
 
         #alignments.append(Alignment.from_json(json_dict))
@@ -105,9 +97,9 @@ def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_base
             yield obg_interval
 
     #paths = [alignment.path for alignment in alignments]
-    #print("Filtering paths")
+    #logger.info("Filtering paths")
     #paths = vg_graph.filter(paths)   # Keep only the ones in graph
-    #print("Translating")
+    #logger.info("Translating")
     #obg_alignments = [path.to_obg(offset_based_graph) for path in paths]
 
     #return obg_alignments
@@ -132,21 +124,20 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=
     for a in stream.parse(vg_mapping_file_name, vg_pb2.Alignment):
         path = a.path
         if i > 100000:
-            print(path)
+            logger.info(path)
 
         try:
             obg_interval = vg_path_to_obg_interval(path, offset_based_graph)
         except Exception:
-            print("Error with path")
-            print(path)
+            logger.error("Error with path")
+            logger.error(path)
             raise
 
-        #print(obg_interval)
         if not obg_interval:
             continue
 
         if i % 1000 == 0:
-            print("Interval # %d" % i)
+            logger.info("Interval # %d" % i)
 
         if(all([mapping.position.node_id in offset_based_graph.blocks for mapping in path.mapping])):
             if max_intervals:
