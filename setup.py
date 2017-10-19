@@ -9,7 +9,7 @@ setup(name='pyvg',
       license='MIT',
       packages=['pyvg'],
       zip_safe=False,
-      install_requires=['numpy'],
+      install_requires=['numpy', 'filecache'],
       classifiers=[
             'Programming Language :: Python :: 3'
       ]

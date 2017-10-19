@@ -3,6 +3,7 @@ import offsetbasedgraph
 from collections import defaultdict
 import pickle
 import os
+from filecache import filecache
 
 
 class Position(object):
@@ -298,16 +299,12 @@ class ProtoGraph(object):
         self.paths = paths
 
     @classmethod
+    @filecache(24*60*60)
     def from_vg_graph_file(cls, vg_graph_file_name, only_read_nodes=False, use_cache_if_available=False):
         nodes = {}
         paths = []
         edges = []
 
-        if use_cache_if_available:
-            if os.path.isfile("%s" %  "vg_sequence_index.cached"):
-                with open("%s" % "vg_sequence_index.cached", "rb") as f:
-                    nodes = pickle.loads(f.read())
-                    return cls(nodes, [], [])
         i = 0
         for line in stream.parse(vg_graph_file_name, vg_pb2.Graph):
             print("Line %d" % i)
