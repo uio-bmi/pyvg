@@ -5,6 +5,7 @@ from pyvg.util import get_interval_for_sequence_in_ob_graph
 # Find start nodes
 import pyvg
 from offsetbasedgraph.graphtraverser import GraphTraverserUsingSequence
+from pybedtools import BedTool
 #vg_graph = ProtoGraph.from_vg_graph_file("tests/cactus-mhc.vg", False, False)
 
 """
@@ -21,6 +22,12 @@ sequence_retriever = SequenceRetriever.from_vg_graph("tests/cactus-mhc.vg")
 traverser = GraphTraverserUsingSequence(ob_graph, search_sequence, sequence_retriever)
 traverser.search_from_node(225518)
 print(traverser.get_nodes_found())
+
+
+ob_graph = obg.GraphWithReversals.from_file("cactus-mhc.obg")
+search_sequence = open("mhc_cleaned2.fa").read()
+
+bed_intervals_to_graph(ob_graph, linear_path_interval, "macs_peaks.bed", graph_start_offset=28510119)
 
 """
 ob_graph = obg.GraphWithReversals.from_file("debruijn-mhc.obg")
