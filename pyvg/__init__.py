@@ -1,1 +1,1 @@
-from .vg import Graph, Position, Edit, Path, Edge, Mapping, Node, Alignment
+from .vg import Graph, Position, Edit, Path, Edge, Mapping, Node, Alignment, Snarls

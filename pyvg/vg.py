@@ -223,6 +223,10 @@ class Edge(object):
         to_end = False
         overlap = 0
 
+        #print(json_object)
+        #if json_object["from"] == 6510:
+        #    print(json_object)
+
         if "from_start" in json_object:
             from_start = json_object["from_start"]
             # Parsed by json == "True"  # NB: Is True correct?
@@ -284,6 +288,27 @@ import stream
 import vg_pb2
 
 
+class Snarls(object):
+    def __init__(self, snarls):
+        self.snarls = snarls
+
+    @classmethod
+    def from_vg_snarls_file(cls, vg_snarls_file_name):
+        snarls = []
+
+        i = 0
+        for snarl in stream.parse(vg_snarls_file_name, vg_pb2.Snarl):
+            snarls.append(snarl)
+            if hasattr(snarl.start, "snarl"):
+                if snarl.start.snarl is not None:
+                    print("Has start")
+                    print(snarl.start.snarl)
+
+            i += 1
+
+
+
+
 class ProtoGraph(object):
     """
     Holding a vg proto graph (restructured into list of nodes, edges and paths
@@ -295,7 +320,7 @@ class ProtoGraph(object):
         self.paths = paths
 
     @classmethod
-    @filecache(24*60*60)
+    @filecache(24*60*60*2)
     def from_vg_graph_file(cls, vg_graph_file_name, only_read_nodes=False, use_cache_if_available=False):
         nodes = {}
         paths = []
@@ -303,10 +328,11 @@ class ProtoGraph(object):
 
         i = 0
         for line in stream.parse(vg_graph_file_name, vg_pb2.Graph):
-            print("Line %d" % i)
+            #print("Line %d" % i)
             i += 1
             if hasattr(line, "node"):
                 for node in line.node:
+
                     nodes[node.id] = node.sequence
                     #if "Chr" in node.name and True:
                     #    print("Node id: %d, name: %s, %s" % (node.id, node.name, node.sequence[0:10]))
@@ -322,8 +348,17 @@ class ProtoGraph(object):
 
             if hasattr(line, "edge"):
                 for edge in line.edge:
-                    edges.append(edge)
-                    print("Edge overlap: %d" % edge.overlap)
+                    """
+                    if edge.to in [6511, 6510]:
+                        print("To hit: ")
+                        print(edge)
+
+                    if getattr(edge, "from") in [6510, 5508]:
+                        print("From hit:")
+                        print(edge)
+                    """
+                    #edges.append(edge)
+                    #print("Edge overlap: %d" % edge.overlap)
                     #assert not hasattr(edge, "overlap")
                     assert edge.overlap == 0
 

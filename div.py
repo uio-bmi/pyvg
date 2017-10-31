@@ -15,6 +15,7 @@ ob_graph.to_file("cactus-mhc.obg")
 """
 
 
+"""
 ob_graph = obg.GraphWithReversals.from_file("cactus-mhc.obg")
 #get_interval_for_sequence_in_ob_graph(1, "mhc_cleaned2.fa", ob_graph   , "tests/camel-mhc.vg")
 search_sequence = open("mhc_cleaned2.fa").read()
@@ -28,6 +29,8 @@ ob_graph = obg.GraphWithReversals.from_file("cactus-mhc.obg")
 search_sequence = open("mhc_cleaned2.fa").read()
 
 bed_intervals_to_graph(ob_graph, linear_path_interval, "macs_peaks.bed", graph_start_offset=28510119)
+"""
+
 
 """
 ob_graph = obg.GraphWithReversals.from_file("debruijn-mhc.obg")
@@ -41,3 +44,7 @@ print(len(start_nodes))
 sequence_retriever = SequenceRetriever.from_vg_graph("tests/cactus-mhc.vg")
 print(sequence_retriever.get_sequence_on_directed_node(1, 0))
 """
+
+from pyvg import Snarls
+
+snarls = Snarls.from_vg_snarls_file("snarls.pb")

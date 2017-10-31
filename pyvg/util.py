@@ -5,6 +5,7 @@ import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
 from .sequences import SequenceRetriever
 logger = logging.getLogger(__name__)
+from filecache import filecache
 
 
 def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob_graph, vg_graph_file_name):
@@ -136,8 +137,8 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=
         if not obg_interval:
             continue
 
-        if i % 1000 == 0:
-            logger.info("Interval # %d" % i)
+        if i % 10000 == 0:
+            logger.info("Parsing interval # %d" % i)
 
         if(all([mapping.position.node_id in offset_based_graph.blocks for mapping in path.mapping])):
             if max_intervals:
@@ -146,11 +147,21 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=
             yield obg_interval
             i += 1
 
-
 def vg_gam_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
     return offsetbasedgraph.IntervalCollection(
                 vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=offset_based_graph, max_intervals=max_intervals)
             )
+
+@filecache(48*60*60)
+def vg_gam_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
+    intervals = []
+    collection = offsetbasedgraph.IntervalCollection(
+                vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=offset_based_graph, max_intervals=max_intervals)
+            )
+    for interval in collection:
+        intervals.append(interval)
+
+    return intervals
 
 def vg_path_to_obg_interval(path, ob_graph = False):
     mappings = []
