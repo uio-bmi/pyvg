@@ -293,19 +293,16 @@ class Snarls(object):
         self.snarls = snarls
 
     @classmethod
+    @filecache(24*60*60)
     def from_vg_snarls_file(cls, vg_snarls_file_name):
         snarls = []
 
         i = 0
         for snarl in stream.parse(vg_snarls_file_name, vg_pb2.Snarl):
             snarls.append(snarl)
-            if hasattr(snarl.start, "snarl"):
-                if snarl.start.snarl is not None:
-                    print("Has start")
-                    print(snarl.start.snarl)
-
             i += 1
 
+        return cls(snarls)
 
 
 
