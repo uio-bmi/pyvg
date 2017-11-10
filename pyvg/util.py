@@ -124,8 +124,6 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=
     i = 0
     for a in stream.parse(vg_mapping_file_name, vg_pb2.Alignment):
         path = a.path
-        if i > 100000:
-            logger.info(path)
 
         try:
             obg_interval = vg_path_to_obg_interval(path, offset_based_graph)
@@ -152,7 +150,7 @@ def vg_gam_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_ba
                 vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=offset_based_graph, max_intervals=max_intervals)
             )
 
-@filecache(48*60*60)
+#@filecache(48*60*60)
 def vg_gam_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
     intervals = []
     collection = offsetbasedgraph.IntervalCollection(

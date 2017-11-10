@@ -3,7 +3,8 @@ import offsetbasedgraph
 from collections import defaultdict
 import pickle
 import os
-from filecache import filecache
+import logging
+#from filecache import filecache
 
 
 class Position(object):
@@ -293,8 +294,9 @@ class Snarls(object):
         self.snarls = snarls
 
     @classmethod
-    @filecache(24*60*60)
+    #@filecache(24*60*60)
     def from_vg_snarls_file(cls, vg_snarls_file_name):
+        logging.info("Reading vg snarls from vg file")
         snarls = []
 
         i = 0
@@ -317,7 +319,7 @@ class ProtoGraph(object):
         self.paths = paths
 
     @classmethod
-    @filecache(24*60*60*2)
+    #@filecache(24*60*60*2)
     def from_vg_graph_file(cls, vg_graph_file_name, only_read_nodes=False, use_cache_if_available=False):
         nodes = {}
         paths = []
@@ -386,7 +388,7 @@ class Graph(object):
         self._create_edge_dicts()
 
     @classmethod
-    @filecache(24*60*60)
+    #@filecache(24*60*60)
     def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
         paths = []
         edges = []
