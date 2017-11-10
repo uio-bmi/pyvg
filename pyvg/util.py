@@ -1,15 +1,15 @@
 import logging
+from filecache import filecache
 from .vg import Graph, Alignment, Path, Mapping
 import json
 import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
 from .sequences import SequenceRetriever
 logger = logging.getLogger(__name__)
-from filecache import filecache
 
 
-def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob_graph, vg_graph_file_name):
-
+def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name,
+                                          ob_graph, vg_graph_file_name):
     offset = 0
     logger.info("Reading sequences")
     reference_sequence = open(reference_file_name).read()
@@ -19,7 +19,7 @@ def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob
     get_seq = SequenceRetriever.from_vg_graph(vg_graph_file_name).get_sequence_on_directed_node
 
     while current_node is not None:
-        logger.info("Current node: %d" % current_node)
+        logger.debug("Current node: %d" % current_node)
         node_sequence = get_seq(current_node)
         current_ref_seq = reference_sequence[offset:offset + len(node_sequence)]
         assert current_ref_seq == node_sequence
@@ -33,11 +33,11 @@ def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob
 
             if next_sequence == reference_sequence[offset:offset+len(next_sequence)]:
                 candidates[next] = next_sequence
-                logger.info(next_sequence)
+                logger.debug(next_sequence)
 
         assert len(candidates) <= 2
         if len(candidates) > 1:
-            logger.info(candidates)
+            logger.debug(candidates)
 
         max_length = 0
         for node, seq in candidates.items():
@@ -46,7 +46,8 @@ def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name, ob
                 max_length = len(seq)
         current_node = next_node
 
-    logger.info(offset)
+    logger.debug(offset)
+
 
 def get_chromosomes_from_vg_graph(vg_json_file_name):
     # TODO
@@ -66,6 +67,7 @@ def vg_to_offsetbasedgraphs_per_chromosome(vg_json_file_name, to_file_base_name 
         offset_based_graph = vg_graph.get_offset_based_graph()
         offset_based_graph.to_file(to_file_base_name + chromosome + ".tmp")
 
+
 def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False):
     if not offset_based_graph:
         logger.info("Creating offsetbasedgraph")
@@ -77,7 +79,6 @@ def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_base
     i = 0
     for json_dict in jsons:
         if "path" not in json_dict:  # Did not align
-            #logger.info("Alignment missing path")
             continue
 
         if i % 10000 == 0:
@@ -97,18 +98,12 @@ def vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_base
             obg_interval.graph = offset_based_graph
             yield obg_interval
 
-    #paths = [alignment.path for alignment in alignments]
-    #logger.info("Filtering paths")
-    #paths = vg_graph.filter(paths)   # Keep only the ones in graph
-    #logger.info("Translating")
-    #obg_alignments = [path.to_obg(offset_based_graph) for path in paths]
-
-    #return obg_alignments
 
 def mapping_end_offset(mapping):
     start_offset = mapping.position.offset
     length = sum(edit.from_length for edit in mapping.edit)
     return start_offset + length
+
 
 def path_is_reverse(path):
     if hasattr(path.mapping[0], "is_reverse"):
@@ -117,16 +112,15 @@ def path_is_reverse(path):
 
     return False
 
-def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
+
+def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
+                             offset_based_graph=False, max_intervals=False):
     import stream
     import vg_pb2
 
     i = 0
     for a in stream.parse(vg_mapping_file_name, vg_pb2.Alignment):
         path = a.path
-        if i > 100000:
-            logger.info(path)
-
         try:
             obg_interval = vg_path_to_obg_interval(path, offset_based_graph)
         except Exception:
@@ -140,36 +134,46 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=
         if i % 10000 == 0:
             logger.info("Parsing interval # %d" % i)
 
-        if(all([mapping.position.node_id in offset_based_graph.blocks for mapping in path.mapping])):
+        if(all([mapping.position.node_id in offset_based_graph.blocks
+                for mapping in path.mapping])):
             if max_intervals:
                 if i >= max_intervals:
                     return
             yield obg_interval
             i += 1
 
-def vg_gam_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
+
+def vg_gam_file_to_interval_collection(
+        vg_graph, vg_mapping_file_name,
+        offset_based_graph=False, max_intervals=False):
     return offsetbasedgraph.IntervalCollection(
-                vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=offset_based_graph, max_intervals=max_intervals)
+                vg_gam_file_to_intervals(
+                    vg_graph, vg_mapping_file_name,
+                    offset_based_graph=offset_based_graph,
+                    max_intervals=max_intervals)
             )
 
+
 @filecache(48*60*60)
-def vg_gam_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph=False, max_intervals=False):
+def vg_gam_file_to_interval_list(vg_graph, vg_mapping_file_name,
+                                 offset_based_graph=False,
+                                 max_intervals=False):
     intervals = []
     collection = offsetbasedgraph.IntervalCollection(
-                vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph=offset_based_graph, max_intervals=max_intervals)
+                vg_gam_file_to_intervals(
+                    vg_graph, vg_mapping_file_name,
+                    offset_based_graph=offset_based_graph,
+                    max_intervals=max_intervals)
             )
     for interval in collection:
         intervals.append(interval)
 
     return intervals
 
-def vg_path_to_obg_interval(path, ob_graph = False):
+
+def vg_path_to_obg_interval(path, ob_graph=False):
     mappings = []
     for mapping in path.mapping:
-        #edits = []
-        #for edit in path.mapping.edits:
-        #    edits.append(edit.to_length, edit.from_length, edit.sequence)
-
         obg_mapping = Mapping(mapping.position, mapping.edit)
         mappings.append(obg_mapping)
 
@@ -207,16 +211,22 @@ def vg_path_to_obg_interval(path, ob_graph = False):
         nodes, interval_graph, direction=direction)
 
 
-def vg_mapping_file_to_interval_file(out_file_name, vg_graph, vg_mapping_file_name, offset_based_graph=False):
+def vg_mapping_file_to_interval_file(out_file_name, vg_graph,
+                                     vg_mapping_file_name,
+                                     offset_based_graph=False):
     interval_collection = IntervalCollection(
-                vg_mapping_file_to_interval_list(vg_graph, vg_mapping_file_name, offset_based_graph))
+                vg_mapping_file_to_interval_list(
+                    vg_graph, vg_mapping_file_name, offset_based_graph))
     interval_collection.to_file(out_file_name)
     return out_file_name
 
 
-def vg_gam_file_to_gzip_interval_file(out_file_name, vg_graph, vg_mapping_file_name, offset_based_graph=False):
+def vg_gam_file_to_gzip_interval_file(out_file_name, vg_graph,
+                                      vg_mapping_file_name,
+                                      offset_based_graph=False):
     interval_collection = IntervalCollection(
-                vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name, offset_based_graph))
+                vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
+                                         offset_based_graph))
     interval_collection.to_gzip(out_file_name)
     return out_file_name
 

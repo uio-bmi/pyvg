@@ -293,17 +293,10 @@ class Snarls(object):
         self.snarls = snarls
 
     @classmethod
-    @filecache(24*60*60)
+    # @filecache(24*60*60)
     def from_vg_snarls_file(cls, vg_snarls_file_name):
-        snarls = []
-
-        i = 0
-        for snarl in stream.parse(vg_snarls_file_name, vg_pb2.Snarl):
-            snarls.append(snarl)
-            i += 1
-
+        snarls = (snarl for snarl in stream.parse(vg_snarls_file_name, vg_pb2.Snarl))
         return cls(snarls)
-
 
 
 class ProtoGraph(object):
@@ -317,7 +310,7 @@ class ProtoGraph(object):
         self.paths = paths
 
     @classmethod
-    @filecache(24*60*60*2)
+    # @filecache(24*60*60*2)
     def from_vg_graph_file(cls, vg_graph_file_name, only_read_nodes=False, use_cache_if_available=False):
         nodes = {}
         paths = []
