@@ -3,7 +3,9 @@ import offsetbasedgraph
 from collections import defaultdict
 import pickle
 import os
-from filecache import filecache
+import logging
+import stream
+import vg_pb2
 
 
 class Position(object):
@@ -284,19 +286,14 @@ class AlignmentCollection(object):
         return self.alignments.__iter__()
 
 
-import stream
-import vg_pb2
-
-
 class Snarls(object):
     def __init__(self, snarls):
         self.snarls = snarls
 
     @classmethod
-    # @filecache(24*60*60)
     def from_vg_snarls_file(cls, vg_snarls_file_name):
-        snarls = (snarl for snarl in stream.parse(vg_snarls_file_name, vg_pb2.Snarl))
-        return cls(snarls)
+        snarls = (snarl for snarl in
+                  stream.parse(vg_snarls_file_name, vg_pb2.Snarl))
 
 
 class ProtoGraph(object):
@@ -310,8 +307,8 @@ class ProtoGraph(object):
         self.paths = paths
 
     @classmethod
-    # @filecache(24*60*60*2)
-    def from_vg_graph_file(cls, vg_graph_file_name, only_read_nodes=False, use_cache_if_available=False):
+    def from_vg_graph_file(cls, vg_graph_file_name, only_read_nodes=False,
+                           use_cache_if_available=False):
         nodes = {}
         paths = []
         edges = []
@@ -379,7 +376,7 @@ class Graph(object):
         self._create_edge_dicts()
 
     @classmethod
-    @filecache(24*60*60)
+    #@filecache(24*60*60)
     def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
         paths = []
         edges = []

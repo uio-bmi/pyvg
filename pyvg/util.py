@@ -154,7 +154,6 @@ def vg_gam_file_to_interval_collection(
             )
 
 
-@filecache(48*60*60)
 def vg_gam_file_to_interval_list(vg_graph, vg_mapping_file_name,
                                  offset_based_graph=False,
                                  max_intervals=False):
