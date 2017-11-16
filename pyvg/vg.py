@@ -294,7 +294,8 @@ class Snarls(object):
     def from_vg_snarls_file(cls, vg_snarls_file_name):
         snarls = (snarl for snarl in
                   stream.parse(vg_snarls_file_name, vg_pb2.Snarl))
-
+        return cls(snarls)
+        
 
 class ProtoGraph(object):
     """
