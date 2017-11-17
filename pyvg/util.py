@@ -1,5 +1,4 @@
 import logging
-from filecache import filecache
 from .vg import Graph, Alignment, Path, Mapping
 import json
 import offsetbasedgraph

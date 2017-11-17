@@ -316,14 +316,11 @@ class ProtoGraph(object):
 
         i = 0
         for line in stream.parse(vg_graph_file_name, vg_pb2.Graph):
-            #print("Line %d" % i)
             i += 1
             if hasattr(line, "node"):
                 for node in line.node:
 
                     nodes[node.id] = node.sequence
-                    #if "Chr" in node.name and True:
-                    #    print("Node id: %d, name: %s, %s" % (node.id, node.name, node.sequence[0:10]))
 
             if only_read_nodes:
                 continue
@@ -331,23 +328,9 @@ class ProtoGraph(object):
             if hasattr(line, "path"):
                 for path in line.path:
                     paths.append(path)
-                    #if not "G" in path.name:
-                    #    print(path.name)
 
             if hasattr(line, "edge"):
                 for edge in line.edge:
-                    """
-                    if edge.to in [6511, 6510]:
-                        print("To hit: ")
-                        print(edge)
-
-                    if getattr(edge, "from") in [6510, 5508]:
-                        print("From hit:")
-                        print(edge)
-                    """
-                    #edges.append(edge)
-                    #print("Edge overlap: %d" % edge.overlap)
-                    #assert not hasattr(edge, "overlap")
                     assert edge.overlap == 0
 
         graph = cls(nodes, edges, paths)
@@ -356,13 +339,12 @@ class ProtoGraph(object):
 
     @classmethod
     def from_node_dict(cls, node_dict):
-        # Create a dummy object from a node dict (node id => sequence)
+        """Create a dummy object from a node dict (node id => sequence)"""
         return cls(node_dict, [], [])
 
     def _cache_nodes(self):
         with open("%s" % "vg_sequence_index.cached", "wb") as f:
             pickle.dump(self.nodes, f)
-
 
 
 class Graph(object):
