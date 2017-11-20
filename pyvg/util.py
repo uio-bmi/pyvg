@@ -177,11 +177,16 @@ def vg_path_to_obg_interval(path, ob_graph=False):
 
     path = Path(path.name, mappings)
     interval = path.to_obg_with_reversals(ob_graph)
+    print(interval.length())
+    if interval.end_position.offset == 0:
+        print(path)
+        print(interval)
+        raise
 
     return interval
 
     if len(path.mapping) == 0:
-        return False  # offsetbasedgraph.Interval(0, 0, [])
+        return False
 
     nodes = [mapping.position.node_id for mapping in path.mapping]
 
@@ -203,10 +208,15 @@ def vg_path_to_obg_interval(path, ob_graph=False):
     interval_graph = None
     if ob_graph:
         interval_graph = ob_graph
-
-    return offsetbasedgraph.Interval(
+    interval = offsetbasedgraph.Interval(
         start_offset, end_offset,
         nodes, interval_graph, direction=direction)
+    if end_offset == 0 or interval.end_offset == 0:
+        print("#", path)
+        print(interval)
+        raise Exception("Endoffset == 0")
+    print(interval)
+    return interval
 
 
 def vg_mapping_file_to_interval_file(out_file_name, vg_graph,

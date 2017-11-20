@@ -70,7 +70,15 @@ class Mapping(object):
 
     def __str__(self):
         return "Map(%s, %s)" % (
-            self.start_position, sum(edit.to_length for edit in self.edits))
+            self.start_position, self.length())
+
+    def node_id(self):
+        if self.is_reverse():
+            return -self.start_position.node_id
+        return self.start_position.node_id
+
+    def length(self):
+        return sum(edit.from_length for edit in self.edits)
 
     def is_reverse(self):
         return self.start_position.is_reverse
@@ -80,8 +88,7 @@ class Mapping(object):
 
     def get_end_offset(self):
         start_offset = self.start_position.offset
-        length = sum(edit.from_length for edit in self.edits)
-        return start_offset + length
+        return start_offset + self.length()
 
     @classmethod
     def from_json(cls, mapping_dict):
@@ -130,31 +137,24 @@ class Path(object):
 
     def to_obg_with_reversals(self, ob_graph=False):
         if len(self.mappings) == 0:
-            return False # offsetbasedgraph.DirectedInterval(0, 0, [])
+            return False
 
         obg_blocks = []
-        start_offset = self.mappings[0].start_position.offset
-        end_offset = self.mappings[-1].start_position.offset
-
-        for mapping in self.mappings:
-            position = mapping.start_position
-            if mapping.is_reverse():
-                node_id = -position.node_id
-            else:
-                node_id = position.node_id
-
-            obg_blocks.append(node_id)
-
-        interval_graph = None
-        if ob_graph:
-            interval_graph = ob_graph
-
+        start_offset = self.mappings[0].get_start_offset()
+        end_offset = self.mappings[-1].get_end_offset()
+        obg_blocks = [m.node_id() for m in self.mappings]
         interval = offsetbasedgraph.DirectedInterval(
             start_offset, end_offset,
-            obg_blocks, interval_graph)
-        #print(interval)
+            obg_blocks, ob_graph or None)
+        if not interval.length() == self.length():
+            print(interval.length(), self.length())
+            print(interval)
+            print(self)
+            raise
         return interval
 
+    def length(self):
+        return sum(mapping.length() for mapping in self.mappings)
 
     def to_obg(self, ob_graph=False):
         return self.to_obg_with_reversals(ob_graph=ob_graph)
