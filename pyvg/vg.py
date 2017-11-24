@@ -45,13 +45,16 @@ class Edit(object):
         self.from_length = from_length
         self.sequence = sequence
 
+    @classmethod
+    def from_proto_obj(cls, obj):
+        return cls(obj.to_length, obj.from_length, obj.sequence)
+
     def __eq__(self, other):
         attrs = ["to_length", "from_length", "sequence"]
         return all(getattr(self, attr) == getattr(other, attr)
                    for attr in attrs)
 
     def is_identity(self):
-        print(self.to_length, self.from_length, self.sequence)
         return self.to_length == self.from_length and not self.sequence
 
     @classmethod
@@ -106,7 +109,7 @@ class Mapping(object):
             try:
                 edits = [Edit.from_json(edit) for edit in mapping_dict["edit"]]
             except KeyError:
-                print(mapping_dict)
+                logging.error(mapping_dict)
                 raise
 
         return cls(start_position, edits)
@@ -158,9 +161,9 @@ class Path(object):
             start_offset, end_offset,
             obg_blocks, ob_graph or None)
         if not interval.length() == self.length():
-            print(interval.length(), self.length())
-            print(interval)
-            print(self)
+            logging.error(interval.length(), self.length())
+            logging.error(interval)
+            logging.error(self)
             raise
         return interval
 

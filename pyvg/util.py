@@ -1,5 +1,5 @@
 import logging
-from .vg import Graph, Alignment, Path, Mapping
+from .vg import Graph, Alignment, Path, Mapping, Edit
 import json
 import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
@@ -121,8 +121,9 @@ def get_paths_from_gam(filename):
 
 
 def protopath_to_path(proto_path):
-    mappings = [Mapping(mapping.position, mapping.edit) for
-                mapping in proto_path.mapping]
+    mappings = [Mapping(mapping.position,
+                        [Edit.from_proto_obj(e) for e in mapping.edit])
+                for mapping in proto_path.mapping]
 
     return Path(proto_path.name, mappings)
 
@@ -143,9 +144,8 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
                              max_intervals=False):
 
     def is_in_graph(path):
-        print("Checking path")
-        return all(mapping.position.node_id in offset_based_graph.blocks
-                   for mapping in path.mapping)
+        return all(mapping.start_position.node_id in offset_based_graph.blocks
+                   for mapping in path.mappings)
 
     intervals = gam_file_to_intervals(vg_graph, vg_mapping_file_name,
                                       offset_based_graph,
