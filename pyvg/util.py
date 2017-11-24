@@ -115,14 +115,14 @@ def path_is_reverse(path):
 def get_paths_from_gam(filename):
     import stream
     import vg_pb2
-    return (path for path in
+    return (alignment.path for alignment in
             stream.parse(filename,
                          vg_pb2.Alignment))
 
 
 def protopath_to_path(proto_path):
     mappings = [Mapping(mapping.position, mapping.edit) for
-                mapping in proto_path.path.mapping]
+                mapping in proto_path.mapping]
 
     return Path(proto_path.name, mappings)
 
