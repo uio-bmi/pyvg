@@ -112,34 +112,46 @@ def path_is_reverse(path):
     return False
 
 
-def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
-                             offset_based_graph=False, max_intervals=False):
+def get_paths_from_gam(filename):
     import stream
     import vg_pb2
+    return (path for path in
+            stream.parse(filename,
+                         vg_pb2.Alignment))
 
-    i = 0
-    for a in stream.parse(vg_mapping_file_name, vg_pb2.Alignment):
-        path = a.path
-        try:
-            obg_interval = vg_path_to_obg_interval(path, offset_based_graph)
-        except Exception:
-            logger.error("Error with path")
-            logger.error(path)
-            raise
 
-        if not obg_interval:
-            continue
+def protopath_to_path(proto_path):
+    mappings = [Mapping(mapping.position, mapping.edit) for
+                mapping in proto_path.path.mapping]
 
-        if i % 10000 == 0:
-            logger.info("Parsing interval # %d" % i)
+    return Path(proto_path.name, mappings)
 
-        if(all([mapping.position.node_id in offset_based_graph.blocks
-                for mapping in path.mapping])):
-            if max_intervals:
-                if i >= max_intervals:
-                    return
-            yield obg_interval
-            i += 1
+
+def gam_file_to_intervals(vg_graph, mapping_file_name,
+                          ob_graph, filter_funcs=()):
+    proto_paths = get_paths_from_gam(mapping_file_name)
+    paths = (protopath_to_path(proto_path) for proto_path in proto_paths)
+    paths = (path for path in paths if
+             all(filter_func(path) for filter_func in filter_funcs))
+
+    intervals = (path.to_obg_with_reversals(ob_graph) for path in paths)
+    return (i for i in intervals if i is not False)
+
+
+def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
+                             offset_based_graph=False,
+                             max_intervals=False):
+
+    def is_in_graph(path):
+        print("Checking path")
+        return all(mapping.position.node_id in offset_based_graph.blocks
+                   for mapping in path.mapping)
+
+    intervals = gam_file_to_intervals(vg_graph, vg_mapping_file_name,
+                                      offset_based_graph,
+                                      [is_in_graph,
+                                       lambda path: path.is_identity()])
+    return intervals
 
 
 def vg_gam_file_to_interval_collection(
@@ -177,12 +189,6 @@ def vg_path_to_obg_interval(path, ob_graph=False):
 
     path = Path(path.name, mappings)
     interval = path.to_obg_with_reversals(ob_graph)
-    print(interval.length())
-    if interval.end_position.offset == 0:
-        print(path)
-        print(interval)
-        raise
-
     return interval
 
     if len(path.mapping) == 0:
