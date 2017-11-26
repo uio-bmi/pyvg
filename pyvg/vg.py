@@ -45,10 +45,17 @@ class Edit(object):
         self.from_length = from_length
         self.sequence = sequence
 
+    @classmethod
+    def from_proto_obj(cls, obj):
+        return cls(obj.to_length, obj.from_length, obj.sequence)
+
     def __eq__(self, other):
         attrs = ["to_length", "from_length", "sequence"]
         return all(getattr(self, attr) == getattr(other, attr)
                    for attr in attrs)
+
+    def is_identity(self):
+        return self.to_length == self.from_length and not self.sequence
 
     @classmethod
     def from_json(cls, edit_dict):
@@ -62,6 +69,9 @@ class Mapping(object):
     def __init__(self, start_position, edits):
         self.start_position = start_position
         self.edits = edits
+
+    def is_identity(self):
+        return all(edit.is_identity() for edit in self.edits)
 
     def __eq__(self, other):
         attrs = ["start_position", "edits"]
@@ -99,7 +109,7 @@ class Mapping(object):
             try:
                 edits = [Edit.from_json(edit) for edit in mapping_dict["edit"]]
             except KeyError:
-                print(mapping_dict)
+                logging.error(mapping_dict)
                 raise
 
         return cls(start_position, edits)
@@ -109,6 +119,9 @@ class Path(object):
     def __init__(self, name, mappings):
         self.mappings = mappings
         self.name = name
+
+    def is_identity(self):
+        return all(mapping.is_identity() for mapping in self.mappings)
 
     def __eq__(self, other):
         attrs = ["mappings"]
@@ -131,7 +144,8 @@ class Path(object):
 
         mappings = []
         if "mapping" in path_dict:
-            mappings = [Mapping.from_json(mapping) for mapping in path_dict["mapping"]]
+            mappings = [Mapping.from_json(mapping) for
+                        mapping in path_dict["mapping"]]
 
         return cls(name, mappings)
 
@@ -147,9 +161,9 @@ class Path(object):
             start_offset, end_offset,
             obg_blocks, ob_graph or None)
         if not interval.length() == self.length():
-            print(interval.length(), self.length())
-            print(interval)
-            print(self)
+            logging.error(interval.length(), self.length())
+            logging.error(interval)
+            logging.error(self)
             raise
         return interval
 
