@@ -177,7 +177,7 @@ def vg_path_to_obg_interval(path, ob_graph=False):
 
     path = Path(path.name, mappings)
     interval = path.to_obg_with_reversals(ob_graph)
-    print(interval.length())
+    #print(interval.length())
     if interval.end_position.offset == 0:
         print(path)
         print(interval)
