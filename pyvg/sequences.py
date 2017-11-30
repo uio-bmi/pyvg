@@ -1,4 +1,3 @@
-
 from .vg import ProtoGraph
 
 
@@ -9,11 +8,12 @@ class SequenceRetriever(object):
 
     @classmethod
     def from_vg_graph(cls, vg_graph_file_name):
-        vg_graph = ProtoGraph.from_vg_graph_file(vg_graph_file_name, True, True)
+        vg_graph = ProtoGraph.from_vg_graph_file(
+            vg_graph_file_name, True, True)
         return cls(vg_graph.nodes)
 
     def get_sequence_on_directed_node(self, node_id, start=0, end=False):
-        # Handles directed nodes
+        """Handles directed nodes"""
         if node_id > 0:
             return self.get_sequence(node_id, start, end)
         else:
@@ -44,16 +44,19 @@ class SequenceRetriever(object):
         end_node = rps[-1]
 
         if start_node == end_node and len(rps) == 1:
-            return self.get_sequence_on_directed_node(start_node,
-                                     interval.start_position.offset,
-                                     interval.end_position.offset)
+            return self.get_sequence_on_directed_node(
+                start_node,
+                interval.start_position.offset,
+                interval.end_position.offset)
         else:
 
-            start_sequence = self.get_sequence_on_directed_node(start_node,
-                                               interval.start_position.offset)
-            end_sequence = self.get_sequence_on_directed_node(end_node,
-                                             0,
-                                             interval.end_position.offset)
+            start_sequence = self.get_sequence_on_directed_node(
+                start_node,
+                interval.start_position.offset)
+            end_sequence = self.get_sequence_on_directed_node(
+                end_node,
+                0,
+                interval.end_position.offset)
             middle_sequence = ""
             for rp in rps[1:-1]:
                 middle_sequence += self.get_sequence_on_directed_node(rp)
