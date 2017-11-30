@@ -45,6 +45,9 @@ sequence_retriever = SequenceRetriever.from_vg_graph("tests/cactus-mhc.vg")
 print(sequence_retriever.get_sequence_on_directed_node(1, 0))
 """
 
+"""
 from pyvg import Snarls
 
 snarls = Snarls.from_vg_snarls_file("snarls.pb")
+"""
+
