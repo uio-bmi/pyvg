@@ -130,6 +130,7 @@ def protopath_to_path(proto_path):
 
 def gam_file_to_intervals(vg_graph, mapping_file_name,
                           ob_graph, filter_funcs=()):
+    print("File name: %s" % mapping_file_name)
     proto_paths = get_paths_from_gam(mapping_file_name)
     paths = (protopath_to_path(proto_path) for proto_path in proto_paths)
     paths = (path for path in paths if
