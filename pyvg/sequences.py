@@ -2,9 +2,16 @@ from .vg import ProtoGraph
 
 
 class SequenceRetriever(object):
+    _compliments = {"A": "T",
+                    "C": "G",
+                    "T": "A",
+                    "G": "C"}
 
     def __init__(self, node_dict):
         self.nodes = node_dict
+
+    def _reverse_compliment(self, sequenence):
+        return "".join(self._compliments[c] for c in sequenence[::-1])
 
     @classmethod
     def from_vg_graph(cls, vg_graph_file_name):
@@ -25,7 +32,7 @@ class SequenceRetriever(object):
             new_start = node_size - end
             new_end = node_size - start
             reverse_sequence = self.get_sequence(-node_id, new_start, new_end)
-            return reverse_sequence[::-1]
+            return self._reverse_compliment(reverse_sequence)
 
     def get_sequence(self, node_id, start=0, end=False):
         assert node_id > 0
