@@ -5,6 +5,7 @@ import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
 from .sequences import SequenceRetriever
 logger = logging.getLogger(__name__)
+import numpy as np
 
 
 def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name,
@@ -152,6 +153,8 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
                                       offset_based_graph,
                                       [is_in_graph,
                                        lambda path: path.is_identity()])
+                                       #lambda path: np.random.randint(0, 6) == 1]
+
     return intervals
 
 
