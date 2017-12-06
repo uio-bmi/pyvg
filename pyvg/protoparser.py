@@ -5,6 +5,7 @@ import stream
 import vg_pb2
 import cProfile
 import logging
+import numpy as np
 
 
 def proto_file_to_obg_grpah(vg_graph_file_name):
@@ -22,9 +23,10 @@ def proto_file_to_obg_grpah(vg_graph_file_name):
     return obg.GraphWithReversals(nodes, adj_list)
 
 
-def json_file_to_obg_graph(json_file_name):
+def json_file_to_obg_graph(json_file_name, n_nodes):
     logging.info("Creating ob graph from json file")
     nodes = {}
+    nodes = np.zeros(n_nodes+1, dtype=np.uint8)
     adj_list = defaultdict(list)
     rev_adj_list = defaultdict(list)
     i = 0
@@ -34,7 +36,8 @@ def json_file_to_obg_graph(json_file_name):
         for json_obj in json_objs:
             if "node" in json_obj:
                 for node in json_obj["node"]:
-                    nodes[node["id"]] = obg.Block(len(node["sequence"]))
+                    #nodes[node["id"]] = obg.Block(len(node["sequence"]))
+                    nodes[node["id"]] = len(node["sequence"])
                     if i % 10000 == 0:
                         logging.info("Node #%d" % i)
                     i += 1
