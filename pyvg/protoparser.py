@@ -23,6 +23,7 @@ def proto_file_to_obg_grpah(vg_graph_file_name):
 
 
 def json_file_to_obg_graph(json_file_name):
+    logging.info("Creating ob graph from json file")
     nodes = {}
     adj_list = defaultdict(list)
     i = 0
