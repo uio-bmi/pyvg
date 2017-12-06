@@ -31,11 +31,11 @@ def json_file_to_obg_graph(json_file_name):
         json_objs = (json.loads(line) for line in lines)
         for json_obj in json_objs:
             if "node" in json_obj:
-                if i % 10000 == 0:
-                    logging.info("Node #%d" % i)
-                i += 1
                 for node in json_obj["node"]:
                     nodes[node["id"]] = obg.Block(len(node["sequence"]))
+                    if i % 10000 == 0:
+                        logging.info("Node #%d" % i)
+                    i += 1
             if "edge" in json_obj:
                 for edge in json_obj["edge"]:
                     from_node = -edge["from"] if "from_start" in edge and edge["from_start"] else edge["from"]
