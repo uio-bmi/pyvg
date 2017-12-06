@@ -43,7 +43,7 @@ def json_file_to_obg_graph(json_file_name):
                     from_node = -edge["from"] if "from_start" in edge and edge["from_start"] else edge["from"]
                     to_node = -edge["to"] if "to_end" in edge and edge["to_end"] else edge["to"]
                     adj_list[from_node].append(to_node)
-                    adj_list[-to_node].append(-from_node)
+                    rev_adj_list[-to_node].append(-from_node)
     return obg.GraphWithReversals(nodes, adj_list,
                                   reverse_adj_list=rev_adj_list,
                                   create_reverse_adj_list=False)
