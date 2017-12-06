@@ -34,7 +34,7 @@ def json_file_to_obg_graph(json_file_name):
             if "node" in json_obj:
                 for node in json_obj["node"]:
                     nodes[node["id"]] = obg.Block(len(node["sequence"]))
-                    if i % 2 == 0:
+                    if i % 10000 == 0:
                         logging.info("Node #%d" % i)
                     i += 1
             if "edge" in json_obj:
