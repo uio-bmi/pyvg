@@ -45,7 +45,7 @@ def json_file_to_obg_graph(json_file_name):
                     adj_list[from_node].append(to_node)
                     rev_adj_list[-to_node].append(-from_node)
     return obg.GraphWithReversals(nodes, adj_list,
-                                  reverse_adj_list=rev_adj_list,
+                                  rev_adj_list=rev_adj_list,
                                   create_reverse_adj_list=False)
 
 
