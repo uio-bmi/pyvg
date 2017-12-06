@@ -163,17 +163,20 @@ class Path(object):
         interval = offsetbasedgraph.DirectedInterval(
             start_offset, end_offset,
             obg_blocks, ob_graph or None)
+
+        assert ob_graph, "Obgraph must be set"
         if not interval.length() == self.length():
             logging.error(interval.length(), self.length())
             logging.error(interval)
             logging.error(self)
-            raise
+            raise Exception("Interval length != self.length")
         return interval
 
     def length(self):
         return sum(mapping.length() for mapping in self.mappings)
 
     def to_obg(self, ob_graph=False):
+        assert ob_graph is not None
         return self.to_obg_with_reversals(ob_graph=ob_graph)
 
         if len(self.mappings) == 0:
