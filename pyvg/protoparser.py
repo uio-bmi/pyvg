@@ -4,6 +4,7 @@ import json
 import stream
 import vg_pb2
 import cProfile
+import logging
 
 
 def proto_file_to_obg_grpah(vg_graph_file_name):
@@ -24,11 +25,15 @@ def proto_file_to_obg_grpah(vg_graph_file_name):
 def json_file_to_obg_graph(json_file_name):
     nodes = {}
     adj_list = defaultdict(list)
+    i = 0
     with open(json_file_name) as f:
         lines = f.readlines()
         json_objs = (json.loads(line) for line in lines)
         for json_obj in json_objs:
             if "node" in json_obj:
+                if i % 10000 == 0:
+                    logging.info("Node #%d" % i)
+                i += 1
                 for node in json_obj["node"]:
                     nodes[node["id"]] = obg.Block(len(node["sequence"]))
             if "edge" in json_obj:
