@@ -129,7 +129,8 @@ class Path(object):
                    for attr in attrs)
 
     def __str__(self):
-        return "Path[%s]" % ", ".join(str(mapping) for mapping in self.mappings)
+        return "Path[%s]" % ", ".join(
+            str(mapping) for mapping in self.mappings)
 
     __repr__ = __str__
 
@@ -157,6 +158,8 @@ class Path(object):
         start_offset = self.mappings[0].get_start_offset()
         end_offset = self.mappings[-1].get_end_offset()
         obg_blocks = [m.node_id() for m in self.mappings]
+        assert all(m.length() <= ob_graph.node_size(m.node_id()) for m in self.mappings), str(self)
+        
         interval = offsetbasedgraph.DirectedInterval(
             start_offset, end_offset,
             obg_blocks, ob_graph or None)
@@ -312,7 +315,7 @@ class Snarls(object):
         snarls = (snarl for snarl in
                   stream.parse(vg_snarls_file_name, vg_pb2.Snarl))
         return cls(snarls)
-        
+
 
 class ProtoGraph(object):
     """

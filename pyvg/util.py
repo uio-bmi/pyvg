@@ -118,7 +118,8 @@ def get_paths_from_gam(filename):
     import vg_pb2
     return (alignment.path for alignment in
             stream.parse(filename,
-                         vg_pb2.Alignment))
+                         vg_pb2.Alignment)
+            if alignment.identity == 1.0)
 
 
 def protopath_to_path(proto_path):
@@ -206,7 +207,8 @@ def vg_path_to_obg_interval(path, ob_graph=False):
 
         nodes = nodes[::-1]
         start_block_length = ob_graph.blocks[nodes[0]].length()
-        start_offset = start_block_length - mapping_end_offset(path.mapping[-1])
+        start_offset = start_block_length - mapping_end_offset(
+            path.mapping[-1])
         end_block_length = ob_graph.blocks[nodes[-1]].length()
         end_offset = end_block_length - mapping_end_offset(path.mapping[0])
         direction = -1
