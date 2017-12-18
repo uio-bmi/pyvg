@@ -26,7 +26,7 @@ def proto_file_to_obg_grpah(vg_graph_file_name):
 def json_file_to_obg_graph(json_file_name, n_nodes):
     logging.info("Creating ob graph from json file")
     nodes = {}
-    nodes = np.zeros(n_nodes+1, dtype=np.uint8)
+    #nodes = np.zeros(n_nodes+1, dtype=np.uint8)
     adj_list = defaultdict(list)
     rev_adj_list = defaultdict(list)
     i = 0
@@ -36,8 +36,8 @@ def json_file_to_obg_graph(json_file_name, n_nodes):
         for json_obj in json_objs:
             if "node" in json_obj:
                 for node in json_obj["node"]:
-                    #nodes[node["id"]] = obg.Block(len(node["sequence"]))
-                    nodes[node["id"]] = len(node["sequence"])
+                    nodes[node["id"]] = obg.Block(len(node["sequence"]))
+                    #nodes[node["id"]] = len(node["sequence"])
                     if i % 10000 == 0:
                         logging.info("Node #%d" % i)
                     i += 1
@@ -47,6 +47,7 @@ def json_file_to_obg_graph(json_file_name, n_nodes):
                     to_node = -edge["to"] if "to_end" in edge and edge["to_end"] else edge["to"]
                     adj_list[from_node].append(to_node)
                     rev_adj_list[-to_node].append(-from_node)
+
     return obg.GraphWithReversals(nodes, adj_list,
                                   rev_adj_list=rev_adj_list,
                                   create_reverse_adj_list=False)
