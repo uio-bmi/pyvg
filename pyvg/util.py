@@ -152,7 +152,7 @@ def gam_file_to_intervals(vg_graph, mapping_file_name,
 
 
 def vg_json_file_to_intervals(vg_graph, mapping_file_name,
-                          ob_graph, filter_funcs=()):
+                          ob_graph=None, filter_funcs=()):
     logging.info("Getting json reads from: %s" % mapping_file_name)
     json_paths = get_json_paths_from_gam(mapping_file_name)
     paths = (jsonpath_to_path(json_path) for json_path in json_paths)
@@ -163,7 +163,7 @@ def vg_json_file_to_intervals(vg_graph, mapping_file_name,
     return (i for i in intervals if i is not False)
 
 
-def vg_json_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_based_graph):
+def vg_json_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_based_graph=None):
     return offsetbasedgraph.IntervalCollection(
                 vg_json_file_to_intervals(
                     vg_graph, vg_mapping_file_name,
