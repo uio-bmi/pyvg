@@ -152,7 +152,7 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
         is_in = [mapping.start_position.node_id in offset_based_graph.blocks
                    for mapping in path.mappings]
         #assert all(is_in)
-        return is_in
+        return all(is_in)
     intervals = gam_file_to_intervals(vg_graph, vg_mapping_file_name,
                                       offset_based_graph,
                                       [is_in_graph,
