@@ -121,6 +121,15 @@ def get_paths_from_gam(filename):
                          vg_pb2.Alignment)
             if alignment.identity == 1.0)
 
+def get_json_paths_from_gam(filename):
+    import stream
+    import vg_pb2
+    f = open(filename)
+    return (json.loads(line)["path"] for line in f.readlines())
+    f.close()
+
+def jsonpath_to_path(json_path):
+    return Path.from_json(json_path)
 
 def protopath_to_path(proto_path):
     mappings = [Mapping(mapping.position,
@@ -132,7 +141,7 @@ def protopath_to_path(proto_path):
 
 def gam_file_to_intervals(vg_graph, mapping_file_name,
                           ob_graph, filter_funcs=()):
-    print("File name: %s" % mapping_file_name)
+    logging.info("Getting alignments from: %s" % mapping_file_name)
     proto_paths = get_paths_from_gam(mapping_file_name)
     paths = (protopath_to_path(proto_path) for proto_path in proto_paths)
     paths = (path for path in paths if
@@ -142,15 +151,34 @@ def gam_file_to_intervals(vg_graph, mapping_file_name,
     return (i for i in intervals if i is not False)
 
 
+def vg_json_file_to_intervals(vg_graph, mapping_file_name,
+                          ob_graph, filter_funcs=()):
+    logging.info("Getting json reads from: %s" % mapping_file_name)
+    json_paths = get_json_paths_from_gam(mapping_file_name)
+    paths = (jsonpath_to_path(json_path) for json_path in json_paths)
+    paths = (path for path in paths if
+             all(filter_func(path) for filter_func in filter_funcs))
+
+    intervals = (path.to_obg_with_reversals(ob_graph) for path in paths)
+    return (i for i in intervals if i is not False)
+
+
+def vg_json_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_based_graph):
+    return offsetbasedgraph.IntervalCollection(
+                vg_json_file_to_intervals(
+                    vg_graph, vg_mapping_file_name,
+                    offset_based_graph)
+            )
+
 def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
                              offset_based_graph=False,
                              max_intervals=False):
 
     def is_in_graph(path):
-        assert isinstance(offset_based_graph, offsetbasedgraph.GraphWithReversals)
-        assert all(isinstance(mapping.start_position.node_id, int) for mapping in path.mappings)
-        is_in = [mapping.start_position.node_id in offset_based_graph.blocks
-                   for mapping in path.mappings]
+        #assert isinstance(offset_based_graph, offsetbasedgraph.GraphWithReversals)
+        #assert all(isinstance(mapping.start_position.node_id, int) for mapping in path.mappings)
+        is_in = (mapping.start_position.node_id in offset_based_graph.blocks
+                   for mapping in path.mappings)
         #assert all(is_in)
         return all(is_in)
     intervals = gam_file_to_intervals(vg_graph, vg_mapping_file_name,
