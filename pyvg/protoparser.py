@@ -86,9 +86,9 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
 
     logging.info("Min node: %d, Max node: %d" % (min_node_id, max_node_id))
 
-    nodes = np.zeros(max_node_id + 1, dtype=np.uint16)
+    nodes = np.zeros((max_node_id - min_node_id) + 2, dtype=np.uint16)
     #adj_list = obg.graph.AdjListAsMatrix(max_node_id + 1)
-
+    logging.info("Reading from json")
     with open(json_file_name) as f:
         lines = f.readlines()
         json_objs = (json.loads(line) for line in lines)
@@ -96,8 +96,6 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
             if "node" in json_obj:
                 for node in json_obj["node"]:
                     nodes[node["id"] - min_node_id + 1] = len(node["sequence"])
-                    if node["id"] == 57073:
-                        print("Length: %d" % len(node["sequence"]))
 
             if "edge" in json_obj:
                 for edge in json_obj["edge"]:
@@ -107,6 +105,7 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
                     #adj_list.add_edge(from_node, to_node)
                     rev_adj_list[-to_node].append(-from_node)
 
+    logging.info("Creating numpy adj lists")
     adj_list = obg.graph.AdjListAsNumpyArrays.create_from_edge_dict(adj_list)
     rev_adj_list = obg.graph.AdjListAsNumpyArrays.create_from_edge_dict(rev_adj_list)
 
