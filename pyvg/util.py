@@ -6,6 +6,7 @@ from offsetbasedgraph import IntervalCollection
 from .sequences import SequenceRetriever
 logger = logging.getLogger(__name__)
 import numpy as np
+from memory_profiler import profile
 
 
 def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name,
@@ -121,12 +122,12 @@ def get_paths_from_gam(filename):
                          vg_pb2.Alignment)
             if alignment.identity == 1.0)
 
+#@profile
 def get_json_paths_from_gam(filename):
-    import stream
-    import vg_pb2
-    f = open(filename)
-    return (json.loads(line)["path"] for line in f.readlines())
-    f.close()
+    with open(filename) as f:
+        out = (json.loads(line)["path"] for line in f.readlines())
+
+    return out
 
 def jsonpath_to_path(json_path):
     return Path.from_json(json_path)
@@ -150,7 +151,7 @@ def gam_file_to_intervals(vg_graph, mapping_file_name,
     intervals = (path.to_obg_with_reversals(ob_graph) for path in paths)
     return (i for i in intervals if i is not False)
 
-
+#@profile
 def vg_json_file_to_intervals(vg_graph, mapping_file_name,
                           ob_graph=None, filter_funcs=()):
     logging.info("Getting json reads from: %s" % mapping_file_name)

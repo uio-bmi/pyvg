@@ -158,6 +158,13 @@ class Path(object):
         start_offset = self.mappings[0].get_start_offset()
         end_offset = self.mappings[-1].get_end_offset()
         obg_blocks = [m.node_id() for m in self.mappings]
+
+        """
+        for m in self.mappings:
+            length = m.length()
+            node_length = ob_graph.node_size(m.node_id())
+            assert length <= node_length , "Map length %d not <= node length %d for node %d" % (length, node_length, m.node_id())
+        """
         assert all(m.length() <= ob_graph.node_size(m.node_id()) for m in self.mappings), str(self)
         
         interval = offsetbasedgraph.DirectedInterval(
