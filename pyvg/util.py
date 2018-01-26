@@ -184,8 +184,8 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
         return all(is_in)
     intervals = gam_file_to_intervals(vg_graph, vg_mapping_file_name,
                                       offset_based_graph,
-                                      [is_in_graph,
-                                       lambda path: path.is_identity()])
+                                      [is_in_graph])
+                                       #lambda path: path.is_identity()])
                                        #lambda path: np.random.randint(0, 6) == 1]
 
     return intervals

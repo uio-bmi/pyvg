@@ -58,8 +58,11 @@ class Edit(object):
         return self.to_length == self.from_length and not self.sequence
 
     @classmethod
-    def from_json(cls, edit_dict):
-        sequence = None if "sequence" not in edit_dict else edit_dict["sequence"]
+    def from_json(cls, edit_dict, skip_sequence=False):
+        sequence = None
+        if not skip_sequence:
+            sequence = None if "sequence" not in edit_dict else edit_dict["sequence"]
+
         to_length = edit_dict["to_length"] if "to_length" in edit_dict else 0
         from_length = edit_dict["from_length"] if "from_length" in edit_dict else 0
         return cls(to_length, from_length, sequence)
@@ -107,7 +110,7 @@ class Mapping(object):
         edits = []
         if "edit" in mapping_dict:
             try:
-                edits = [Edit.from_json(edit) for edit in mapping_dict["edit"]]
+                edits = [Edit.from_json(edit, skip_sequence=False) for edit in mapping_dict["edit"]]
             except KeyError:
                 logging.error(mapping_dict)
                 raise
@@ -165,7 +168,7 @@ class Path(object):
             node_length = ob_graph.node_size(m.node_id())
             assert length <= node_length , "Map length %d not <= node length %d for node %d" % (length, node_length, m.node_id())
         """
-        assert all(m.length() <= ob_graph.node_size(m.node_id()) for m in self.mappings), str(self)
+        #assert all(m.length() <= ob_graph.node_size(m.node_id()) for m in self.mappings), str(self)
         
         interval = offsetbasedgraph.DirectedInterval(
             start_offset, end_offset,
