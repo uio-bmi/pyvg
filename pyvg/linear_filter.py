@@ -1,4 +1,4 @@
-from util import vg_json_file_to_intervals
+from .util import vg_json_file_to_intervals
 import offsetbasedgraph as obg
 
 
