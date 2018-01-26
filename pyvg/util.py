@@ -132,6 +132,7 @@ def get_json_paths_from_gam(filename):
 def jsonpath_to_path(json_path):
     return Path.from_json(json_path)
 
+
 def protopath_to_path(proto_path):
     mappings = [Mapping(mapping.position,
                         [Edit.from_proto_obj(e) for e in mapping.edit])
@@ -171,6 +172,7 @@ def vg_json_file_to_interval_collection(vg_graph, vg_mapping_file_name, offset_b
                     offset_based_graph)
             )
 
+
 def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
                              offset_based_graph=False,
                              max_intervals=False):
@@ -179,7 +181,7 @@ def vg_gam_file_to_intervals(vg_graph, vg_mapping_file_name,
         #assert isinstance(offset_based_graph, offsetbasedgraph.GraphWithReversals)
         #assert all(isinstance(mapping.start_position.node_id, int) for mapping in path.mappings)
         is_in = (mapping.start_position.node_id in offset_based_graph.blocks
-                   for mapping in path.mappings)
+                 for mapping in path.mappings)
         #assert all(is_in)
         return all(is_in)
     intervals = gam_file_to_intervals(vg_graph, vg_mapping_file_name,
