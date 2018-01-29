@@ -1,11 +1,13 @@
 import json
-import offsetbasedgraph
-from collections import defaultdict
-import pickle
-import os
 import logging
+import os
+import pickle
+from collections import defaultdict
+
+import offsetbasedgraph
 import stream
-import vg_pb2
+
+from pyvg import vg_pb2
 
 
 class Position(object):
@@ -443,7 +445,6 @@ class Graph(object):
         edges = []
         nodes = []
         import stream
-        import vg_pb2
         i = 0
         for line in stream.parse(proto_file_name, vg_pb2.Graph):
 

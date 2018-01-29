@@ -1,12 +1,14 @@
-from collections import defaultdict
-import offsetbasedgraph as obg
-import json
-import stream
-import vg_pb2
 import cProfile
+import json
 import logging
+from collections import defaultdict
+
 import numpy as np
-from memory_profiler import profile
+import offsetbasedgraph as obg
+import stream
+
+from pyvg import vg_pb2
+
 
 def proto_file_to_obg_grpah(vg_graph_file_name):
     nodes = {}

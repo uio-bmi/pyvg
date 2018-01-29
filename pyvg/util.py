@@ -1,12 +1,13 @@
-import logging
-from .vg import Graph, Alignment, Path, Mapping, Edit
 import json
+import logging
+
 import offsetbasedgraph
 from offsetbasedgraph import IntervalCollection
+
 from .sequences import SequenceRetriever
+from .vg import Graph, Alignment, Path, Mapping, Edit
+
 logger = logging.getLogger(__name__)
-import numpy as np
-from memory_profiler import profile
 
 
 def get_interval_for_sequence_in_ob_graph(start_node_id, reference_file_name,
@@ -116,7 +117,7 @@ def path_is_reverse(path):
 
 def get_paths_from_gam(filename):
     import stream
-    import vg_pb2
+    from pyvg import vg_pb2
     return (alignment.path for alignment in
             stream.parse(filename,
                          vg_pb2.Alignment)
