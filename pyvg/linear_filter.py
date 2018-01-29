@@ -1,5 +1,6 @@
 from .util import vg_json_file_to_intervals
 import offsetbasedgraph as obg
+import logging
 
 
 def graph_to_indexed_interval(graph):
@@ -17,20 +18,36 @@ class LinearFilter:
         start_positions = {"+": [],
                  "-": [] }
 
+        logging.info("Mapping graph position to linear positions")
+        nodes_in_linear_path = set(self._indexed_interval.region_paths)
+        i = 0
         for pos in self._position_tuples:
             direction = "+"
-            if pos.node_id < 0:
+            node = pos.region_path_id
+            if node  < 0:
                 direction = "-"
+
+            if i % 10000 == 0:
+                logging.info("%d reads processed" % i)
+            i += 1
+
+            if abs(node) not in nodes_in_linear_path:
+                continue
+
             start_positions[direction].append(self._indexed_interval.get_offset_at_position(
                 pos, direction))
+
+
         return start_positions
 
     @classmethod
     def from_vg_json_reads_and_graph(cls, json_file_name, graph_file_name):
+        logging.info("Reading graph %s" % graph_file_name)
         graph = obg.GraphWithReversals.from_unknown_file_format(graph_file_name)
         intervals =  vg_json_file_to_intervals(None, json_file_name, graph)
         positions = (interval.start_position for interval in intervals)
 
+        logging.info("Getting indexed interval through graph")
         indexed_interval = graph.get_indexed_interval_through_graph()
         return cls(positions, indexed_interval)
 
