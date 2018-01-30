@@ -1,5 +1,6 @@
 from .util import vg_json_file_to_intervals
 import offsetbasedgraph as obg
+from graph_peak_caller.haplotyping import HaploTyper
 import logging
 
 
@@ -44,10 +45,16 @@ class LinearFilter:
     def from_vg_json_reads_and_graph(cls, json_file_name, graph_file_name):
         logging.info("Reading graph %s" % graph_file_name)
         graph = obg.GraphWithReversals.from_unknown_file_format(graph_file_name)
+
+        logging.info("Getting indexed interval through graph")
+        intervals =  vg_json_file_to_intervals(None, json_file_name, graph)
+        haplotyper = HaploTyper(graph, obg.IntervalCollection(intervals))
+        haplotyper.build()
+        indexed_interval = haplotyper.get_maximum_interval_through_graph()
+        #indexed_interval = graph.get_indexed_interval_through_graph()
+
         intervals =  vg_json_file_to_intervals(None, json_file_name, graph)
         positions = (interval.start_position for interval in intervals)
 
-        logging.info("Getting indexed interval through graph")
-        indexed_interval = graph.get_indexed_interval_through_graph()
         return cls(positions, indexed_interval)
 
