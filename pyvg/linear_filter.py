@@ -35,10 +35,12 @@ class LinearFilter:
             if abs(node) not in nodes_in_linear_path:
                 continue
 
-            start_positions[direction].append(self._indexed_interval.get_offset_at_position(
-                pos, direction))
+            offset = self._indexed_interval.get_offset_at_position(
+                pos, direction)
+            assert isinstance(offset, int), "Offset is of type %s" % type(offset)
+            start_positions[direction].append(offset)
 
-
+        logging.info("Found in total %d positions" % len(start_positions["+"]))
         return start_positions
 
     @classmethod
