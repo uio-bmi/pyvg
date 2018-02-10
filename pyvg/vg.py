@@ -402,11 +402,11 @@ class Graph(object):
         print("Number of lines: %d" % n_lines)
 
         # object_types = ["Path", "Edge", "Node"]
-        i = 0
+        i = 1
         for line in lines:
             line = json.loads(line)
             if i % 100 == 0:
-                print("Line: %d/%d" % (i, n_lines))
+                logging.info("Processing line: %d/%d" % (i, n_lines))
             i += 1
             if limit_to_chromosomes:
                 if "path" not in line:
@@ -434,7 +434,7 @@ class Graph(object):
         if do_read_paths:
             obj.paths_as_intervals_by_chr = {}
             #obj._merge_paths_by_name()
-
+        logging.info("Done reading vg graph")
         return obj
 
     @classmethod
