@@ -393,20 +393,18 @@ class Graph(object):
     @classmethod
     #@filecache(24*60*60)
     def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
+        logging.info("Reading vg graph from json file %s" % json_file_name)
         paths = []
         edges = []
         nodes = []
         f = open(json_file_name)
         lines = f.readlines()
         n_lines = len(lines)
-        print("Number of lines: %d" % n_lines)
 
         # object_types = ["Path", "Edge", "Node"]
         i = 1
         for line in lines:
             line = json.loads(line)
-            if i % 100 == 0:
-                logging.info("Processing line: %d/%d" % (i, n_lines))
             i += 1
             if limit_to_chromosomes:
                 if "path" not in line:

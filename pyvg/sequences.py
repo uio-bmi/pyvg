@@ -1,5 +1,7 @@
 from .vg import ProtoGraph
-
+from .vg import Graph
+import json
+import logging
 
 class SequenceRetriever(object):
     _compliments = {"A": "T",
@@ -18,6 +20,24 @@ class SequenceRetriever(object):
         vg_graph = ProtoGraph.from_vg_graph_file(
             vg_graph_file_name, True, True)
         return cls(vg_graph.nodes)
+
+    @classmethod
+    def from_vg_json_graph(cls, vg_graph_file_name):
+        node_dict = {}
+        f = open(vg_graph_file_name)
+        i = 1
+        for line in f.readlines():
+            line = json.loads(line)
+            if "node" in line:
+                node_objects = line["node"]
+                for node_object in node_objects:
+                    node_dict[node_object["id"]] = node_object["sequence"].lower()
+                    i += 1
+                    if i % 1000000 == 0:
+                        logging.info("%d nodes processed" % i)
+
+        return cls(node_dict)
+
 
     def get_sequence_on_directed_node(self, node_id, start=0, end=False):
         """Handles directed nodes"""
