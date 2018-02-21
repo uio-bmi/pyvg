@@ -167,9 +167,6 @@ class Path(object):
 
         assert ob_graph, "Obgraph must be set"
         if not interval.length() == self.length():
-            logging.error(interval.length(), self.length())
-            logging.error(interval)
-            logging.error(self)
             raise Exception("Interval length != self.length")
         return interval
 

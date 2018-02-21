@@ -1,4 +1,4 @@
-from pyvg import Graph, Mapping, Alignment, Node, Edge, Snarls, Path, ProtoGraph
+from pyvg import Graph, Mapping, Alignment, Node, Edge, Snarls, Path, ProtoGraph, Position
 import unittest
 from offsetbasedgraph import GraphWithReversals, Block
 import json
@@ -64,6 +64,17 @@ class TestSnarls(unittest.TestCase):
         self.assertEqual(snarlist[0].end.node_id, 2)
         self.assertEqual(snarlist[1].start.node_id, 2)
         self.assertEqual(snarlist[1].end.node_id, 3)
+
+
+class TestPosition(unittest.TestCase):
+    def test_eq(self):
+        position1 = Position(3, 6)
+        position2 = Position(3, 6)
+        position3 = Position(3, 5)
+
+        self.assertEqual(position1, position2)
+        self.assertNotEqual(position1, position3)
+
 
 if __name__ == "__main__":
     create_test_data()
