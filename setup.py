@@ -15,3 +15,12 @@ setup(name='pyvg',
       ]
 
       )
+
+"""
+To update package:
+#Update version number manually in this file
+
+sudo python3 setup.py sdist
+sudo python3 setup.py bdist_wheel
+twine upload dist/pyvg-1.0.0.tar.gz
+"""
