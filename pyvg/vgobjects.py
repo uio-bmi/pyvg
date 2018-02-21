@@ -3,10 +3,8 @@ import logging
 import os
 import pickle
 from collections import defaultdict
-
 import offsetbasedgraph
 import stream
-
 from pyvg import vg_pb2
 
 
@@ -159,19 +157,10 @@ class Path(object):
         if len(self.mappings) == 0:
             return False
 
-        obg_blocks = []
         start_offset = self.mappings[0].get_start_offset()
         end_offset = self.mappings[-1].get_end_offset()
         obg_blocks = [m.node_id() for m in self.mappings]
 
-        """
-        for m in self.mappings:
-            length = m.length()
-            node_length = ob_graph.node_size(m.node_id())
-            assert length <= node_length , "Map length %d not <= node length %d for node %d" % (length, node_length, m.node_id())
-        """
-        #assert all(m.length() <= ob_graph.node_size(m.node_id()) for m in self.mappings), str(self)
-        
         interval = offsetbasedgraph.DirectedInterval(
             start_offset, end_offset,
             obg_blocks, ob_graph or None)
@@ -190,34 +179,6 @@ class Path(object):
     def to_obg(self, ob_graph=False):
         assert ob_graph is not None
         return self.to_obg_with_reversals(ob_graph=ob_graph)
-
-        if len(self.mappings) == 0:
-            return offsetbasedgraph.Interval(0, 0, [])
-
-        nodes = [mapping.start_position.node_id for mapping in self.mappings]
-
-        if self.is_reverse():
-            if not ob_graph:
-                raise Exception("Path is reverse and offset based graph is not sent")
-
-            nodes = nodes[::-1]
-            start_block_length = ob_graph.blocks[nodes[0]].length()
-            start_offset = start_block_length - self.mappings[-1].get_end_offset()
-            end_block_length = ob_graph.blocks[nodes[-1]].length()
-            end_offset = end_block_length - self.mappings[0].get_end_offset()
-            direction = -1
-        else:
-            start_offset = self.mappings[0].get_start_offset()
-            end_offset = self.mappings[-1].get_end_offset()
-            direction = 1
-
-        interval_graph = None
-        if ob_graph:
-            interval_graph = ob_graph
-
-        return offsetbasedgraph.Interval(
-            start_offset, end_offset,
-            nodes, interval_graph, direction=direction)
 
 
 class Node(object):
@@ -331,7 +292,8 @@ class Snarls(object):
 
 class ProtoGraph(object):
     """
-    Holding a vg proto graph (restructured into list of nodes, edges and paths
+    Holding a vg proto graph (restructured into list of nodes, edges and paths.
+    Warning: Python proto reading is slow. Graph class reads from json and is faster.
     """
 
     def __init__(self, nodes, edges, paths):
@@ -391,7 +353,6 @@ class Graph(object):
         self._create_edge_dicts()
 
     @classmethod
-    #@filecache(24*60*60)
     def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
         logging.info("Reading vg graph from json file %s" % json_file_name)
         paths = []
@@ -431,26 +392,8 @@ class Graph(object):
         obj = cls(nodes, edges, paths)
         if do_read_paths:
             obj.paths_as_intervals_by_chr = {}
-            #obj._merge_paths_by_name()
         logging.info("Done reading vg graph")
         return obj
-
-    @classmethod
-    # TODO Not finished
-    def create_from_proto_file(cls, proto_file_name, max_lines_to_read=False, limit_to_chromosome=False, do_read_paths=True):
-        # todo
-        paths = []
-        edges = []
-        nodes = []
-        import stream
-        i = 0
-        for line in stream.parse(proto_file_name, vg_pb2.Graph):
-
-            print(line)
-            if i % 100 == 0:
-                print("Line: %d" % (i))
-
-            i += 1
 
     def _create_edge_dicts(self):
         self.edge_dict = defaultdict(list)
@@ -468,11 +411,6 @@ class Graph(object):
 
         return False
 
-        for edge in self.edges:
-            if edge.to_node == interval.region_paths[0]:
-                return False
-        return True
-
     def is_in_graph(self, obj):
         if isinstance(obj, Position):
             return obj.node_id in self.node_dict
@@ -489,68 +427,7 @@ class Graph(object):
         return [obj for obj in objects if self.is_in_graph(obj)]
 
     def edges_from_node(self, node_id):
-
         return self.edge_dict[node_id]
-
-        edges = []
-        for edge in self.edges:
-            if edge.from_node == node_id:
-                edges.append(edge.to_node)
-
-        return edges
-
-    def _merge_paths_by_name(self):
-        print("merging paths")
-        # Join all paths with the same name
-        paths_by_name = defaultdict(list)
-        for path in self.paths:
-            paths_by_name[path.name].append(path)
-
-        for name in paths_by_name:
-            print(name)
-            intervals = []
-            for path in paths_by_name[name]:
-                intervals.append(path.to_obg())
-
-            #if name == "chr4":
-            #    print(intervals)
-
-            # Create a single connectected interval for this name
-            region_paths = []
-            # Find the starting interval (no edges in)
-            start_intervals = []
-            for interval in intervals:
-                if self._interval_has_no_edges_in(interval):
-                    start_intervals.append(interval)
-            assert len(start_intervals) == 1, print("\n\n".join([str(i.region_paths[0]) for i in intervals]))
-
-            # Traverse to connect all intervals
-            current_interval = start_intervals[0]
-            start_position = current_interval.start_position
-            number_of_intervals_added = 0
-            while True:
-                region_paths.extend(current_interval.region_paths)
-                number_of_intervals_added += 1
-                next_nodes = self.edges_from_node(current_interval.region_paths[-1])
-                potential_next_intervals = []
-                for potential_next_interval in intervals:
-                    if potential_next_interval.region_paths[0] in next_nodes:
-                        potential_next_intervals.append(potential_next_interval)
-
-                assert len(potential_next_intervals) <= 1
-
-                if len(potential_next_intervals) == 0:
-                    break
-
-                current_interval = potential_next_intervals[0]
-
-            end_position = current_interval.end_position
-
-            single_linear_interval = offsetbasedgraph.Interval(start_position, end_position, region_paths)
-            assert number_of_intervals_added == len(intervals)
-            #print(single_linear_interval)
-
-            self.paths_as_intervals_by_chr[name] = single_linear_interval
 
     @classmethod
     def from_file(cls, file_name):
@@ -593,46 +470,7 @@ class Graph(object):
         offset_based_blocks = {}
         for block in self.nodes:
             offset_based_blocks[block.id] = block.to_obg()
-        #print(offset_based_blocks)
+
         return offsetbasedgraph.GraphWithReversals(
             offset_based_blocks,
             offset_based_edges)
-
-    def get_translation(self, limit_to_chromosome=False):
-        offset_based_graph = self.get_offset_based_graph()
-
-        trans_dict = {}
-        trans_dict_reverse = defaultdict(list)
-
-        for chromosome in self.paths_as_intervals_by_chr:
-            if limit_to_chromosome and limit_to_chromosome != chromosome:
-                print("Skipping %s" % chromosome)
-                continue
-
-            offset_based_graph_path = self.paths_as_intervals_by_chr[chromosome]
-            offset_based_graph_path.graph = offset_based_graph
-            trans_dict[chromosome] =  [offset_based_graph_path]
-
-            # Create reverse dict
-            offset = 0
-
-
-            for block in offset_based_graph_path.region_paths:
-                block_length = offset_based_graph.blocks[block].length()
-
-
-
-                trans_dict_reverse[block] = [
-                            offsetbasedgraph.Interval(offset, offset + block_length, [chromosome], None)]
-                offset += block_length
-
-        return offsetbasedgraph.Translation(trans_dict, trans_dict_reverse, offset_based_graph)
-
-
-if __name__ == "__main__":
-
-    f = open("./dm_test_data/mapped_reads_sample.json")
-    jsons = (json.loads(line) for line in f.readlines())
-    alignments = [Alignment.from_json(json_dict) for json_dict in jsons]
-    for alignment in alignments:
-        print(alignment.path.is_reverse(), alignment.path.to_obg())

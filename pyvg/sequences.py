@@ -1,7 +1,7 @@
-from .vg import ProtoGraph
-from .vg import Graph
+from .vgobjects import ProtoGraph
 import json
 import logging
+
 
 class SequenceRetriever(object):
     _compliments = {"A": "T",
@@ -37,7 +37,6 @@ class SequenceRetriever(object):
                         logging.info("%d nodes processed" % i)
 
         return cls(node_dict)
-
 
     def get_sequence_on_directed_node(self, node_id, start=0, end=False):
         """Handles directed nodes"""
