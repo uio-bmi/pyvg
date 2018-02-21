@@ -57,7 +57,7 @@ class TestSequences(unittest.TestCase):
                          "AGGAAAGATCTTTCC")
 
     def test_from_vg_json_graph(self):
-        retriever = SequenceRetriever.from_vg_json_graph("simple_graph.json")
+        retriever = SequenceRetriever.from_vg_json_graph("tests/simple_graph.json")
         self.assertEqual(retriever.get_sequence(1, 0, 7), "tttcccc")
 
 if __name__ == "__main__":
