@@ -332,7 +332,7 @@ class Graph(object):
         self._create_edge_dicts()
 
     @classmethod
-    def from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
+    def from_file(cls, json_file_name, do_read_paths=True):
         logging.info("Reading vg graph from json file %s" % json_file_name)
         paths = []
         edges = []
@@ -346,16 +346,6 @@ class Graph(object):
         for line in lines:
             line = json.loads(line)
             i += 1
-            if limit_to_chromosomes:
-                if "path" not in line:
-                    continue
-                if line["path"][0]["name"] not in limit_to_chromosomes:
-                    if len(nodes) > 0:
-                        # Assuminng there are nothing more on this chromosome now
-                        break
-
-                    continue
-
 
             if do_read_paths and "path" in line:
                 paths.extend([Path.from_json(json_object) for json_object in line["path"]])
@@ -363,10 +353,6 @@ class Graph(object):
                 nodes.extend([Node.from_json(json_object) for json_object in line["node"]])
             if "edge" in line:
                 edges.extend([Edge.from_json(json_object) for json_object in line["edge"]])
-
-            if max_lines_to_read and i >= max_lines_to_read:
-                break
-
 
         obj = cls(nodes, edges, paths)
         if do_read_paths:
@@ -381,26 +367,6 @@ class Graph(object):
         for edge in self.edges:
             self.edge_dict[edge.get_from_node()].append(edge.get_to_node())
             self.reverse_edge_dict[-edge.get_to_node()].append(-edge.get_from_node())
-
-    def _interval_has_no_edges_in(self, interval):
-
-        start_node = interval.region_paths[0]
-        if abs(start_node) not in self.reverse_edge_dict:
-            return True
-
-        return False
-
-    def is_in_graph(self, obj):
-        if isinstance(obj, Position):
-            return obj.node_id in self.node_dict
-        elif isinstance(obj, Mapping):
-            return self.is_in_graph(obj.start_position)
-        elif isinstance(obj, Path):
-            return all(self.is_in_graph(mapping) for mapping
-                       in obj.mappings)
-        elif isinstance(obj, Alignment):
-            return self.is_in_graph(obj.path)
-        assert False, type(obj)
 
     def filter(self, objects):
         return [obj for obj in objects if self.is_in_graph(obj)]
