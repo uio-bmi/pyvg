@@ -8,7 +8,7 @@ from testdata import create_test_data, simple_graph
 class TestGraph(unittest.TestCase):
 
     def test_graph_from_json(self):
-        graph = Graph.from_file("simple_graph.json")
+        graph = Graph.from_file("tests/simple_graph.json")
         self.assertEqual(len(graph.nodes), 3)
         self.assertEqual(graph.nodes[0].id, 1)
         self.assertEqual(graph.nodes[1].id, 2)
