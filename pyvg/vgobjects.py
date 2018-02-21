@@ -218,10 +218,6 @@ class Edge(object):
         to_end = False
         overlap = 0
 
-        #print(json_object)
-        #if json_object["from"] == 6510:
-        #    print(json_object)
-
         if "from_start" in json_object:
             from_start = json_object["from_start"]
             # Parsed by json == "True"  # NB: Is True correct?
@@ -257,8 +253,6 @@ class Alignment(object):
 
     @classmethod
     def from_json(cls, alignment_dict):
-
-        #print(alignment_dict)
         return cls(
             Path.from_json(alignment_dict["path"]),
             alignment_dict["identity"])
@@ -353,7 +347,7 @@ class Graph(object):
         self._create_edge_dicts()
 
     @classmethod
-    def create_from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
+    def from_file(cls, json_file_name, max_lines_to_read=False, limit_to_chromosomes=False, do_read_paths=True):
         logging.info("Reading vg graph from json file %s" % json_file_name)
         paths = []
         edges = []
@@ -428,32 +422,6 @@ class Graph(object):
 
     def edges_from_node(self, node_id):
         return self.edge_dict[node_id]
-
-    @classmethod
-    def from_file(cls, file_name):
-        """
-        Load graph from pickle
-
-        :param file_name: File name
-        :rtype: Graph
-        """
-        if os.path.isfile("%s" % file_name):
-            obj = pickle.load(open(file_name, "rb"))
-            return cls(obj.nodes, obj.edges, obj.paths)
-        else:
-            print("Warning: Graph not found" % file_name)
-            return None
-
-    def to_file(self, file_name):
-        """
-        Writes the graph to file so that it later can be
-        recreated using the from_file method
-
-        :param file_name: File name
-        :return:
-        """
-        with open("%s" % file_name, "wb") as f:
-            pickle.dump(self, f)
 
     def get_offset_based_graph(self):
         offset_based_edges = defaultdict(list)
