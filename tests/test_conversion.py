@@ -25,7 +25,7 @@ class TestReadConversion(unittest.TestCase):
 class TestGraphConversion(unittest.TestCase):
 
     def test_simple(self):
-        graph = json_file_to_obg_numpy_graph("simple_graph.json")
+        graph = json_file_to_obg_numpy_graph("tests/simple_graph.json")
         assert graph == simple_graph
 
 
