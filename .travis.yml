@@ -6,9 +6,6 @@ before_install:
     - pip install pytest-cov
     - pip install codecov
     - cd
-    - git clone https://github.com/uio-cels/OffsetBasedGraph.git
-    - cd OffsetBasedGraph && git checkout develop && pip install .
-    - cd
 
 install:
     - ls

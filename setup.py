@@ -9,7 +9,7 @@ setup(name='pyvg',
       license='MIT',
       packages=['pyvg'],
       zip_safe=False,
-      install_requires=['numpy', 'filecache', 'protobuf3', 'pystream-protobuf'],
+      install_requires=['numpy', 'filecache', 'protobuf3', 'pystream-protobuf', 'offsetbasedgraph'],
       classifiers=[
             'Programming Language :: Python :: 3'
       ]
