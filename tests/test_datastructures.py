@@ -28,7 +28,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(graph.edges[1].to_end, True)
 
     def test_to_offset_based_graph(self):
-        graph = Graph.from_file("simple_graph.json")
+        graph = Graph.from_file("tests/simple_graph.json")
         obgraph = graph.get_offset_based_graph()
 
         self.assertEqual(obgraph, simple_graph)
