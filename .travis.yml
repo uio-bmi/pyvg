@@ -1,0 +1,23 @@
+language: python
+python:
+    - "3.5"
+
+before_install:
+    - pip install pytest-cov
+    - pip install codecov
+    - cd
+    - git clone https://github.com/uio-cels/OffsetBasedGraph.git
+    - cd OffsetBasedGraph && git checkout develop && pip install .
+    - cd
+
+install:
+    - ls
+    - cd build/uio-bmi/pyvg
+    - pip install -e .
+
+script:
+    - py.test --cov=./
+
+after_success:
+    - cd /home/travis/build/uio-bmi/pyvg/
+    - codecov

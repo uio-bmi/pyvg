@@ -1,26 +1,8 @@
-from pyvg import Graph, Mapping, Alignment, Node, Edge, Snarls, Path
+from pyvg import Graph, Mapping, Alignment, Node, Edge, Snarls, Path, ProtoGraph
 import unittest
 from offsetbasedgraph import GraphWithReversals, Block
 import json
-
-def create_test_data():
-    simple_graph = """
-    {
-    "node": [
-        {"id": 1, "sequence": "TTTCCCC"},
-        {"id": 2, "sequence": "TTTT"},
-        {"id": 3, "sequence": "CCCCTTT"}
-    ],
-    "edge": [
-        {"from": 1, "to": 2},
-        {"from": 2, "to": 3, "to_end": true}
-    ]
-    }
-    """
-
-    f = open("simple_graph.json", "w")
-    f.write(simple_graph.replace("\n", " "))
-    f.close()
+from testdata import create_test_data, simple_graph
 
 
 class TestGraph(unittest.TestCase):
@@ -49,16 +31,8 @@ class TestGraph(unittest.TestCase):
         graph = Graph.from_file("simple_graph.json")
         obgraph = graph.get_offset_based_graph()
 
-        self.assertEqual(obgraph,
-                         GraphWithReversals({
-                             1: Block(7),
-                             2: Block(4),
-                             3: Block(7)
-                         },
-                        {
-                            1: [2],
-                            2: [-3]
-                        }))
+        self.assertEqual(obgraph, simple_graph)
+
 
 class TestAlignment(unittest.TestCase):
 
@@ -70,6 +44,26 @@ class TestAlignment(unittest.TestCase):
         self.assertEqual(alignment.identity, 0.75)
         path = alignment.path
         self.assertEqual(path.name, "testread")
+
+
+class TestProtoGraph(unittest.TestCase):
+    def test_from_file(self):
+        graph = ProtoGraph.from_vg_graph_file("tests/simple_graph.vg")
+        self.assertEqual(len(graph.nodes), 3)
+
+
+class TestSnarls(unittest.TestCase):
+    def test_from_vg_file(self):
+        snarls = Snarls.from_vg_snarls_file("tests/snarls.pb")
+        snarlist = []
+
+        for snarl in snarls.snarls:
+            snarlist.append(snarl)
+
+        self.assertEqual(snarlist[0].start.node_id, 1)
+        self.assertEqual(snarlist[0].end.node_id, 2)
+        self.assertEqual(snarlist[1].start.node_id, 2)
+        self.assertEqual(snarlist[1].end.node_id, 3)
 
 if __name__ == "__main__":
     create_test_data()

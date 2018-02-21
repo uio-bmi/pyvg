@@ -30,27 +30,12 @@ def vg_json_file_to_interval_collection(vg_mapping_file_name, offset_based_graph
     return obg.IntervalCollection(vg_json_file_to_intervals(vg_mapping_file_name, offset_based_graph))
 
 
-def vg_path_to_obg_interval(path, ob_graph=False):
-    mappings = []
-    for mapping in path.mapping:
-        obg_mapping = Mapping(mapping.position, mapping.edit)
-        mappings.append(obg_mapping)
-
-    path = Path(path.name, mappings)
-    interval = path.to_obg_with_reversals(ob_graph)
-    return interval
-
-
-def vg_mapping_file_to_interval_file(out_file_name, vg_graph,
-                                     vg_mapping_file_name,
-                                     offset_based_graph=False):
-    interval_collection = IntervalCollection(vg_json_file_to_intervals(
-        vg_graph, vg_mapping_file_name, offset_based_graph))
-    interval_collection.to_file(out_file_name)
-    return out_file_name
-
-
 def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
+    """
+    Faster method not using Graph class. Directly converts to a
+    numpy-backed Offset Based Graph.
+    """
+
     logging.info("Creating ob graph from json file")
     adj_list = defaultdict(list)
     rev_adj_list = defaultdict(list)
