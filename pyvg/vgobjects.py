@@ -7,6 +7,9 @@ import offsetbasedgraph
 import stream
 from pyvg import vg_pb2
 
+class IntervalNotInGraphException(Exception):
+    pass
+
 
 class Position(object):
     def __init__(self, node_id, offset, is_reverse=False):
@@ -167,7 +170,7 @@ class Path(object):
 
         assert ob_graph, "Obgraph must be set"
         if not interval.length() == self.length():
-            raise Exception("Interval length != self.length")
+            raise IntervalNotInGraphException("Interval %s is not valid interval in graph" % interval)
         return interval
 
     def length(self):

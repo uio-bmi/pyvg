@@ -16,7 +16,7 @@ def get_json_paths_from_json(filename):
 
 
 def vg_json_file_to_intervals(mapping_file_name, ob_graph=None, filter_funcs=()):
-    logging.info("Getting json reads from: %s" % mapping_file_name)
+    logging.info("Initing json reads as generator from: %s" % mapping_file_name)
     json_paths = get_json_paths_from_json(mapping_file_name)
     paths = (Path.from_json(json_path) for json_path in json_paths)
     paths = (path for path in paths if
