@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pyvg',
-      version='1.0.0',
+      version='1.0.1',
       description='Working with vg graphs in python',
       url='http://github.com/uio-bmi/pyvg',
       author='Ivar Grytten and Knut Rand',
@@ -22,5 +22,5 @@ To update package:
 
 sudo python3 setup.py sdist
 sudo python3 setup.py bdist_wheel
-twine upload dist/pyvg-1.0.0.tar.gz
+twine upload dist/pyvg-1.0.1.tar.gz
 """
