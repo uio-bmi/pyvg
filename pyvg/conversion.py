@@ -11,9 +11,12 @@ logger = logging.getLogger(__name__)
 
 def get_json_paths_from_json(filename):
     with open(filename) as f:
-        out = (json.loads(line)["path"] for line in f.readlines())
-    return out
-
+        for line in f.readlines():
+            try:
+                yield json.loads(line)["path"] 
+            except json.decoder.JSONDecodeError as e:
+                logging.error("Fail when parsing vg path json. Skipping this line and continuing: " + str(e) + "")
+                continue
 
 def vg_json_file_to_intervals(mapping_file_name, ob_graph=None, filter_funcs=()):
     logging.info("Initing json reads as generator from: %s" % mapping_file_name)
@@ -44,7 +47,7 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
     min_node_id = 1e15
     max_node_id = 0
 
-    # Find max and min
+    # Find max and minh
     with open(json_file_name) as f:
         lines = f.readlines()
         json_objs = (json.loads(line) for line in lines)
@@ -52,6 +55,10 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
             if "node" in json_obj:
                 for node in json_obj["node"]:
                     id = node["id"]
+                    if not isinstance(id, int):
+                        logging.warning("Node id %s is not int. Converting to int when creating graph." % id)
+                        id = int(id) 
+
                     if id < min_node_id:
                         min_node_id = id
 
@@ -68,14 +75,14 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
         for json_obj in json_objs:
             if "node" in json_obj:
                 for node in json_obj["node"]:
-                    nodes[node["id"] - min_node_id + 1] = len(node["sequence"])
+                    nodes[int(node["id"]) - min_node_id + 1] = len(node["sequence"])
 
             if "edge" in json_obj:
                 for edge in json_obj["edge"]:
                     from_node = -edge["from"] if "from_start" in edge and edge["from_start"] else edge["from"]
                     to_node = -edge["to"] if "to_end" in edge and edge["to_end"] else edge["to"]
-                    adj_list[from_node].append(to_node)
-                    rev_adj_list[-to_node].append(-from_node)
+                    adj_list[int(from_node)].append(to_node)
+                    rev_adj_list[-int(to_node)].append(-int(from_node))
 
     logging.info("Creating numpy adj lists")
     adj_list = obg.graph.AdjListAsNumpyArrays.create_from_edge_dict(adj_list)

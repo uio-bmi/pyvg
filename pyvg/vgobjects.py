@@ -35,7 +35,7 @@ class Position(object):
     @classmethod
     def from_json(cls, position_dict):
         offset = int(position_dict["offset"]) if "offset" in position_dict else 0
-        node_id = position_dict["node_id"]
+        node_id = int(position_dict["node_id"])
         is_reverse = False
         if "is_reverse" in position_dict:
             is_reverse = position_dict["is_reverse"]
@@ -228,8 +228,8 @@ class Edge(object):
         if "overlap" in json_object:
             overlap = int(json_object["overlap"])
 
-        return cls(json_object["from"],
-                   json_object["to"],
+        return cls(int(json_object["from"]),
+                   int(json_object["to"]),
                    from_start,
                    to_end,
                    overlap,
@@ -247,15 +247,18 @@ class Edge(object):
 
 
 class Alignment(object):
-    def __init__(self, path, identity):
+    def __init__(self, path, identity, name=None):
         self.identity = identity
         self.path = path
+        self.name = name
 
     @classmethod
     def from_json(cls, alignment_dict):
         return cls(
             Path.from_json(alignment_dict["path"]),
-            alignment_dict["identity"])
+            alignment_dict["identity"],
+            alignment_dict["name"] if "name" in alignment_dict else None
+        )
 
 
 class Snarls(object):
