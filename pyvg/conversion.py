@@ -79,8 +79,8 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
 
             if "edge" in json_obj:
                 for edge in json_obj["edge"]:
-                    from_node = -edge["from"] if "from_start" in edge and edge["from_start"] else edge["from"]
-                    to_node = -edge["to"] if "to_end" in edge and edge["to_end"] else edge["to"]
+                    from_node = -int(edge["from"]) if "from_start" in edge and edge["from_start"] else edge["from"]
+                    to_node = -int(edge["to"]) if "to_end" in edge and edge["to_end"] else edge["to"]
                     adj_list[int(from_node)].append(to_node)
                     rev_adj_list[-int(to_node)].append(-int(from_node))
 
