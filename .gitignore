@@ -1,5 +1,6 @@
 *~
 *.swp
+pyvg.egg-info/
 *.pyc
 .idea
 *#
