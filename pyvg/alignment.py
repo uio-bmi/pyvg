@@ -14,7 +14,7 @@ def fasta_parser(file_name):
 def align_safe(sequence_id, sequence, vg_graph_file_name):
     command = "vg align -Q %s -s %s %s" % (sequence_id, sequence,
                                            vg_graph_file_name)
-    align_process = Popen(command.split(), stdout=PIPE, stdin=PIPE)
+    align_process = Popen(command.split(), stdout=PIPE)
     command = "vg view -aj -"
     view_process = Popen(command.split(), stdin=align_process.stdout,
                          stdout=PIPE)
@@ -58,9 +58,9 @@ def align_fasta_to_graph_paralell(fasta_file_name, graph_file_name, out_file_nam
 
     pipes = {title: align_safe(title.split()[0], sequence, graph_file_name)
              for title, sequence in fasta_parser(fasta_file_name)}
-    alignments = (assert_name(title, pipe.read())
+    alignments = (assert_name(title, str(pipe.read()))
                   for title, pipe in pipes.items())
 
     with open(out_file_name, "w") as output_file:
-        output_file.writelines(alignments)
+        output_file.writelines((s+"\n" for s in alignments))
     logging.info("Wrote to %s" % out_file_name)
