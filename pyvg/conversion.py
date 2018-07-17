@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def get_json_lines(filename):
 
-     with open(filename, "rb") as f:
+     with open(filename, "r") as f:
         for line in f.readlines():
             try:
                 yield json.loads(line)

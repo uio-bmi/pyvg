@@ -29,20 +29,28 @@ class AlignmentCollection:
         return cls(node_dict, ob_graph)
 
     def to_file(self, file_name):
+        logging.info("Writing to file")
         with open(file_name, "wb") as f:
             pickle.dump(self._node_dict, f)
 
     @classmethod
     def from_file(cls, file_name, graph):
-        logging.info("Writing to file")
+        logging.info("Reading from file")
         with open(file_name, "rb") as f:
             node_dict = pickle.load(f)
             return cls(node_dict, graph)
 
 
     def get_alignments_on_node(self, node_id):
-        logging.info("Reading from file")
         return self._node_dict[node_id]
+
+
+    def get_alignments_on_interval(self, interval):
+        alignments = set()
+        for node in interval.region_paths:
+            alignments.update(self.get_alignments_on_node(node))
+
+        return alignments
 
 if __name__ == "__main__":
     import sys
