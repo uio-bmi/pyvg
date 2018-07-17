@@ -1,8 +1,9 @@
 import re
+import io
 from itertools import islice, chain
 from .util import call_vg
 from Bio.SeqIO.FastaIO import SimpleFastaParser
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output
 import logging
 
 
@@ -19,7 +20,7 @@ def align_safe(sequence_id, sequence, vg_graph_file_name):
     command = "vg view -aj -"
     view_process = Popen(command.split(), stdin=align_process.stdout,
                          stdout=PIPE)
-    return view_process.stdout
+    return io.TextIOWrapper(view_process.stdout)
 
 
 def align_sequence(sequence_id, sequence, vg_graph_file_name):
@@ -68,7 +69,7 @@ def align_fasta_to_graph_paralell(fasta_file_name, graph_file_name, out_file_nam
                  for title, sequence in chunk}
         alignments = (assert_name(title, str(pipe.read()))
                       for title, pipe in pipes.items())
-        output_file.writelines((s+"\n" for s in alignments))
+        output_file.writelines(alignments)
     output_file.close()
 
     logging.info("Wrote to %s" % out_file_name)
