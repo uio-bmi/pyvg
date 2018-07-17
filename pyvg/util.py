@@ -19,7 +19,7 @@ def call_vg(command, return_raw=False, out_file=None):
 
 def get_stats(graph_file_name):
 
-    stats = call_vg("vg stats -lz " + graph_file_name)
+    stats = call_vg("vg stats -lz %s" % graph_file_name)
     lines = stats.split("\n")
     return {
         "nodes": lines[0].split()[1],
