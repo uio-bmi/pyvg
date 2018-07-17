@@ -42,18 +42,19 @@ class AlignmentCollection:
     @classmethod
     def from_file(cls, file_name, graph):
         logging.info("Reading from file")
+        logging.info("Reading dict structure")
         with open(file_name, "rb") as f:
             node_dict = pickle.load(f)
 
+        logging.info("Reading intervals")
         intervals = IntervalCollection.from_file(file_name + ".intervals", graph=graph)
         return cls(node_dict, graph, list(intervals))
 
     def get_alignments_on_node(self, node_id):
-        name, index = self._node_dict[node_id]
-        return (name, self.intervals[index])
+        return {name: self.intervals[index] for name, index in self._node_dict[node_id]}
 
     def get_alignments_on_interval(self, interval):
-        alignments = set()
+        alignments = {}
         for node in interval.region_paths:
             alignments.update(self.get_alignments_on_node(node))
 
