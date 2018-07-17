@@ -90,8 +90,8 @@ class Mapping(object):
 
     def node_id(self):
         if self.is_reverse():
-            return -self.start_position.node_id
-        return self.start_position.node_id
+            return -int(self.start_position.node_id)
+        return int(self.start_position.node_id)
 
     def length(self):
         return sum(edit.from_length for edit in self.edits)

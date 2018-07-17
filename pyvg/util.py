@@ -16,3 +16,14 @@ def call_vg(command, return_raw=False, out_file=None):
         return res
     return res.decode("utf-8")
 
+
+def get_stats(graph_file_name):
+
+    stats = call_vg("vg stats -lz %s" % graph_file_name)
+    lines = stats.split("\n")
+    return {
+        "nodes": lines[0].split()[1],
+        "edges": lines[1].split()[1],
+        "length": lines[2].split()[1],
+    }
+

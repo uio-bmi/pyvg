@@ -8,6 +8,20 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+def get_json_lines(filename):
+
+     with open(filename, "rb") as f:
+        for line in f.readlines():
+            try:
+                yield json.loads(line)
+            except json.decoder.JSONDecodeError as e:
+                logging.error("Fail when parsing vg json. Skipping this line and continuing: " + str(e) + "")
+                continue
+            except UnicodeDecodeError as e:
+                logging.error("Unicode parsing fail when parsing vg json. Skipping this line and continuing: " + str(e) + "")
+                continue
+
+
 
 def get_json_paths_from_json(filename):
     with open(filename) as f:
@@ -17,6 +31,13 @@ def get_json_paths_from_json(filename):
             except json.decoder.JSONDecodeError as e:
                 logging.error("Fail when parsing vg path json. Skipping this line and continuing: " + str(e) + "")
                 continue
+
+
+def parse_vg_json_alignments(mapping_file_name, ob_graph):
+    json_objects = get_json_lines(mapping_file_name)
+    alignments = (Alignment.from_json(json_object) for json_object in json_objects)
+    return ((alignment.name, alignment.path.to_obg_with_reversals(ob_graph)) for alignment in alignments)
+
 
 def vg_json_file_to_intervals(mapping_file_name, ob_graph=None, filter_funcs=()):
     logging.info("Initing json reads as generator from: %s" % mapping_file_name)
