@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pyvg',
-      version='1.0.1',
+      version='1.1.0',
       description='Working with vg graphs in python',
       url='http://github.com/uio-bmi/pyvg',
       author='Ivar Grytten and Knut Rand',
