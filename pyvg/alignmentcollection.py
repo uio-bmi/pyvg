@@ -52,7 +52,7 @@ class AlignmentCollection:
         return cls(node_dict, graph, list(intervals))
 
     def get_alignments_on_node(self, node_id):
-        return {name: list(UniqueIntervals(self.intervals[index])) for name, index in self._node_dict[node_id]}
+        return {name: self.intervals[index] for name, index in self._node_dict[node_id]}
 
     def get_alignments_on_interval(self, interval):
         alignments = {}
