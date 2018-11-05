@@ -256,7 +256,7 @@ class Alignment(object):
     def from_json(cls, alignment_dict):
         return cls(
             Path.from_json(alignment_dict["path"]),
-            alignment_dict["identity"],
+            alignment_dict["identity"] if "identity" in alignment_dict else None,
             alignment_dict["name"] if "name" in alignment_dict else None
         )
 

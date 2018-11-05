@@ -57,6 +57,7 @@ class AlignmentCollection:
         alignments = {}
         for node in interval.region_paths:
             alignments.update(self.get_alignments_on_node(node))
+            alignments.update(self.get_alignments_on_node(-node))
 
         return alignments
 
