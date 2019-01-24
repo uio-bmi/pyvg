@@ -168,9 +168,12 @@ class Path(object):
             start_offset, end_offset,
             obg_blocks, ob_graph or None)
 
-        assert ob_graph, "Obgraph must be set"
-        if not interval.length() == self.length():
-            raise IntervalNotInGraphException("Interval %s is not valid interval in graph" % interval)
+        if ob_graph:
+            if not interval.length() == self.length():
+                raise IntervalNotInGraphException("Interval %s is not valid interval in graph" % interval)
+        else:
+            logging.warning("Offset based graph not set. Validation of interval is not done.")
+
         return interval
 
     def length(self):

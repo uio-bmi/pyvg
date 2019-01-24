@@ -72,12 +72,15 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
     with open(json_file_name) as f:
         lines = f.readlines()
         json_objs = (json.loads(line) for line in lines)
+        has_warned_about_int = False
         for json_obj in json_objs:
             if "node" in json_obj:
                 for node in json_obj["node"]:
                     id = node["id"]
                     if not isinstance(id, int):
-                        logging.warning("Node id %s is not int. Converting to int when creating graph." % id)
+                        if not has_warned_about_int:
+                            logging.warning("Node id %s is not int. Converting to int when creating graph." % id)
+                            has_warned_about_int = True
                         id = int(id) 
 
                     if id < min_node_id:
