@@ -4,6 +4,7 @@ from collections import defaultdict
 import pickle
 from offsetbasedgraph import IntervalCollection
 import logging
+from graph_peak_caller.intervals import UniqueIntervals
 
 logging.basicConfig(level=logging.DEBUG)
 
