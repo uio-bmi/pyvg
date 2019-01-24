@@ -58,9 +58,13 @@ def align_fasta_to_graph_paralell(fasta_file_name, graph_file_name, out_file_nam
     output_file = open(out_file_name, "w")
 
     def assert_name(name, json_alignment):
-        found_name = re.search(r"\"name\":\"([A-Z0-9_\-\.a-z]+)+\"",
+        try:
+            found_name = re.search(r"\"name\": ?\"([A-Z0-9_\-\.a-z]+)+\"",
                                json_alignment, re.IGNORECASE).group(1)
-        assert found_name == name, (name, found_name)
+        except AttributeError as e:
+            print("Search for name gave no results for %s" % json_alignment)
+            raise
+        assert found_name == name or found_name == name.split()[0], (name, found_name)
         return json_alignment
 
     output_file = open(out_file_name, "w")

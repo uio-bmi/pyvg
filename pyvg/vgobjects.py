@@ -168,10 +168,12 @@ class Path(object):
             start_offset, end_offset,
             obg_blocks, ob_graph or None)
 
-        if ob_graph is not None:
-            assert ob_graph, "Obgraph must be set"
+        if ob_graph:
             if not interval.length() == self.length():
                 raise IntervalNotInGraphException("Interval %s is not valid interval in graph" % interval)
+        else:
+            logging.warning("Offset based graph not set. Validation of interval is not done.")
+
         return interval
 
     def length(self):
@@ -257,7 +259,7 @@ class Alignment(object):
     def from_json(cls, alignment_dict):
         return cls(
             Path.from_json(alignment_dict["path"]),
-            alignment_dict["identity"],
+            alignment_dict["identity"] if "identity" in alignment_dict else None,
             alignment_dict["name"] if "name" in alignment_dict else None
         )
 
