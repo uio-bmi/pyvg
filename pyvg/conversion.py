@@ -31,6 +31,8 @@ def get_json_paths_from_json(filename):
             except json.decoder.JSONDecodeError as e:
                 logging.error("Fail when parsing vg path json. Skipping this line and continuing: " + str(e) + "")
                 continue
+            except KeyError as e:
+                logging.error("Did not find path in alignment. Assuming this is mis-alignment: " + str(e) + "")
 
 
 def parse_vg_json_alignments(mapping_file_name, ob_graph):
