@@ -171,8 +171,6 @@ class Path(object):
         if ob_graph:
             if not interval.length() == self.length():
                 raise IntervalNotInGraphException("Interval %s is not valid interval in graph" % interval)
-        else:
-            logging.warning("Offset based graph not set. Validation of interval is not done.")
 
         return interval
 
