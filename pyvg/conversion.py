@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def get_json_lines(filename):
 
      with open(filename, "r") as f:
-        for line in f.readlines():
+        for line in f:
             try:
                 yield json.loads(line)
             except json.decoder.JSONDecodeError as e:
@@ -25,7 +25,7 @@ def get_json_lines(filename):
 
 def get_json_paths_from_json(filename):
     with open(filename) as f:
-        for line in f.readlines():
+        for line in f:
             try:
                 yield json.loads(line)["path"] 
             except json.decoder.JSONDecodeError as e:
@@ -72,7 +72,7 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
 
     # Find max and minh
     with open(json_file_name) as f:
-        lines = f.readlines()
+        lines = f
         json_objs = (json.loads(line) for line in lines)
         has_warned_about_int = False
         for json_obj in json_objs:
@@ -96,7 +96,7 @@ def json_file_to_obg_numpy_graph(json_file_name, n_nodes = 0):
     nodes = np.zeros((max_node_id - min_node_id) + 2, dtype=np.uint16)
     logging.info("Reading from json")
     with open(json_file_name) as f:
-        lines = f.readlines()
+        lines = f
         json_objs = (json.loads(line) for line in lines)
         for json_obj in json_objs:
             if "node" in json_obj:
