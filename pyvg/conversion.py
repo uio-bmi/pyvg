@@ -40,7 +40,8 @@ def parse_vg_json_alignments(mapping_file_name, ob_graph, include_score=False):
     alignments = (Alignment.from_json(json_object) for json_object in json_objects)
     
     if include_score:
-        return ((alignment.name, alignment.path.to_obg_with_reversals(ob_graph), alignment.score, alignment.mapq, alignment.refpos) for alignment in alignments)
+        return ((alignment.name, alignment.path.to_obg_with_reversals(ob_graph),
+                 alignment.score, alignment.mapq, alignment.refpos, alignment.chromosome) for alignment in alignments)
 
     return ((alignment.name, alignment.path.to_obg_with_reversals(ob_graph)) for alignment in alignments)
 
