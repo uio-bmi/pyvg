@@ -250,17 +250,30 @@ class Edge(object):
 
 
 class Alignment(object):
-    def __init__(self, path, identity, name=None):
+    def __init__(self, path, identity, score=0, refpos=0, mapq=0, name=None):
         self.identity = identity
         self.path = path
+        self.score = score
+        self.refpos = refpos
+        self.mapq = mapq
         self.name = name
 
     @classmethod
     def from_json(cls, alignment_dict):
+        try:
+            offset = int(alignment_dict["refpos"][0]["offset"])
+        except KeyError:
+            logging.warning("Could not get offset from alignment. Defaulting to 0 instead.")
+            logging.warning("Alignment that failed: %s" % alignment_dict)
+            offset = 0
+
         return cls(
             Path.from_json(alignment_dict["path"]),
             alignment_dict["identity"] if "identity" in alignment_dict else None,
-            alignment_dict["name"] if "name" in alignment_dict else None
+            int(alignment_dict["score"]),
+            offset,
+            int(alignment_dict["mapping_quality"]) if "mapping_quality" in alignment_dict else None,
+            name=alignment_dict["name"] if "name" in alignment_dict else None
         )
 
 
