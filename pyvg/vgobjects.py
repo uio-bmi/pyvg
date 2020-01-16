@@ -261,17 +261,16 @@ class Alignment(object):
     def from_json(cls, alignment_dict):
         try:
             offset = int(alignment_dict["refpos"][0]["offset"])
-            chromosome = int(alignment_dict["refpos"][0]["name"])
+            chromosome = alignment_dict["refpos"][0]["name"]
         except KeyError:
             logging.warning("Could not get offset from alignment. Defaulting to 0 instead.")
-            logging.warning("Alignment that failed: %s" % alignment_dict)
             offset = 0
             chromosome = None
 
         return cls(
             Path.from_json(alignment_dict["path"]),
             alignment_dict["identity"] if "identity" in alignment_dict else None,
-            int(alignment_dict["score"]),
+            int(alignment_dict["score"]) if "score" in alignment_dict else None,
             offset,
             chromosome,
             int(alignment_dict["mapping_quality"]) if "mapping_quality" in alignment_dict else None,
